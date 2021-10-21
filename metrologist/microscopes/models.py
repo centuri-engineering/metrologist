@@ -17,26 +17,14 @@ log = logging.getLogger(__name__)
 """
 Many to Many relation between intruments and objectives
 """
-instrument_objectives = db.Table(
-    "instrument_objectives",
+
+
+microscope_objectives = db.Table(
+    "microscope_objectives",
     db.Model.metadata,
-    Column("instrument_id", db.Integer, db.ForeignKey("instruments.id")),
+    Column("microscope_id", db.Integer, db.ForeignKey("microscopes.id")),
     Column("objective_id", db.Integer, db.ForeignKey("objectives.id")),
 )
-
-
-class Instrument(PkModel):
-    """A combination of a microscope and a collection of objectives
-
-    This is in accordance (but with less info for now) with the omero schema
-    An objective can be used on multiple instruments.
-    """
-
-    __tablename__ = "intruments"
-    microscope_id = reference_col("microscopes", nullable=False)
-    microscope = relationship("Microscope", backerf=__tablename__)
-    objectives = relationship("Objective", secondary=instrument_objectives)
-    created_at = Column(db.DateTime, nullable=True, default=dt.datetime.utcnow)
 
 
 class Microscope(PkModel):
@@ -48,6 +36,8 @@ class Microscope(PkModel):
     # Bright field, confocal etc
     modality_id = reference_col("modalities", nullable=False)
     modality = relationship("Modality", backerf=__tablename__)
+    objectives = relationship("Objective", secondary=microscope_objectives)
+    created_at = Column(db.DateTime, nullable=True, default=dt.datetime.utcnow)
 
 
 class Objective(PkModel):
