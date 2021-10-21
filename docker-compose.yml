@@ -64,6 +64,8 @@ services:
       args:
         <<: *build_args
     entrypoint: flask
+    depends_on:
+      - metrologist_db
     networks:
       - metrologist
     environment:
