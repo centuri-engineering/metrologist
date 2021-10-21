@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+  <h3>Here are the registered microscopes</h3>
+  <hr>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for microscope in microscopes %}
+    <div class="col">
+      {% include('microscopes/microscope.html') %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
