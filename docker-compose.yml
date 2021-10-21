@@ -8,9 +8,19 @@ x-default-volumes: &default_volumes
   volumes:
     - ./:/app
     - node-modules:/app/node_modules
-    - ./dev.db:/tmp/dev.db
 
 services:
+  metrologist_db:
+    image: "postgres:11"
+    restart: always
+    env_file:
+      - .env
+    networks:
+      - metrologist
+    volumes:
+      - "db_data:/var/lib/postgresql/data"
+      - "backup:/backups"
+
   flask-dev:
     build:
       context: .
@@ -18,6 +28,10 @@ services:
       args:
         <<: *build_args
     image: "metrologist-development"
+    depends_on:
+      - metrologist_db
+    networks:
+      - metrologist
     ports:
       - "5000:5000"
       - "2992:2992"
@@ -30,6 +44,10 @@ services:
       args:
         <<: *build_args
     image: "metrologist-production"
+    depends_on:
+      - metrologist_db
+    networks:
+      - metrologist
     ports:
       - "5000:5000"
     environment:
@@ -46,6 +64,8 @@ services:
       args:
         <<: *build_args
     entrypoint: flask
+    networks:
+      - metrologist
     environment:
       FLASK_ENV: production
       FLASK_DEBUG: 0
@@ -56,3 +76,17 @@ services:
 
 volumes:
   node-modules:
+  db_data:
+    driver_opts:
+      type: none
+      device: $HOME/data/metrologist
+      o: bind
+
+  backup:
+    driver_opts:
+      type: none
+      device: $HOME/data/backups/metrologist
+      o: bind
+
+networks:
+  metrologist:
