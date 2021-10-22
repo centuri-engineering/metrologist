@@ -35,7 +35,7 @@ class Microscope(PkModel):
     created_at = Column(db.DateTime, nullable=True, default=dt.datetime.utcnow)
     # Bright field, confocal etc
     modality_id = reference_col("modalities", nullable=False)
-    modality = relationship("Modality", backerf=__tablename__)
+    modality = relationship("Modality", backref=__tablename__)
     objectives = relationship("Objective", secondary=microscope_objectives)
     created_at = Column(db.DateTime, nullable=True, default=dt.datetime.utcnow)
 
