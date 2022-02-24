@@ -28,25 +28,17 @@ from metrologist.microscopes.forms import (
 
 
 blueprint = Blueprint(
-    "microscopes", __name__, url_prefix="/", static_folder="../static"
+    "microscopes", __name__, url_prefix="/microscopes", static_folder="../static"
 )
 
 
 @blueprint.route("/")
 @login_required
-def microscopes(scope="group"):
+def microscopes():
     """List microscopes"""
-    if scope == "user":
-        user_id = current_user.id
-        microscopes_ = Microscope.query.filter_by(user_id=user_id)
-    elif scope == "group":
-        microscopes_ = Microscope.query.filter(
-            Microscope.group_id == current_user.group_id
-        )
-    else:
-        microscopes_ = Microscope.query.all()
+    microscopes = Microscope.query.all()
 
-    return render_template("microscopes/microscopes.html", microscopes=microscopes_)
+    return render_template("microscopes/microscopes.html", microscopes=microscopes)
 
 
 @blueprint.route("/new")

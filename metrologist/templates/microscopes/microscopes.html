@@ -4,7 +4,10 @@
   <h3>Here are the registered microscopes</h3>
   <hr>
 
-<div class="row row-cols-1 row-cols-md-3 g-4">
+  <div class="row row-cols-1 row-cols-md-3 g-4">
+    {% if not microscopes %}
+    <h3> Nothing to show here yet </h3>
+    {% endif %}
     {% for microscope in microscopes %}
     <div class="col">
       {% include('microscopes/microscope.html') %}
