@@ -64,7 +64,7 @@ class NewMicroscopeForm(FlaskForm):
     name = StringField("Microscope name")
     vendor = SelectField("Vendor")
     modality = SelectField("Modality")
-    objectives = FieldList(SelectField)
+    objectives = FieldList(SelectField())
     add_objective = SubmitField("add an objective", render_kw={"class": "btn btn-info"})
     del_objective = SubmitField(
         "remove last objective", render_kw={"class": "btn btn-info"}
