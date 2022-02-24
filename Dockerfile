@@ -1,17 +1,19 @@
 # ================================== BUILDER ===================================
-ARG INSTALL_PYTHON_VERSION=${INSTALL_PYTHON_VERSION:-PYTHON_VERSION_NOT_SET}
-ARG INSTALL_NODE_VERSION=${INSTALL_NODE_VERSION:-NODE_VERSION_NOT_SET}
+ARG INSTALL_PYTHON_VERSION=${INSTALL_PYTHON_VERSION:-3.7}
 
-FROM node:${INSTALL_NODE_VERSION}-buster-slim AS node
-FROM python:${INSTALL_PYTHON_VERSION}-slim-buster AS builder
+FROM condaforge/mambaforge AS base
+
+RUN apt-get update
+RUN apt-get install -y \
+    gcc \
+    wget
+
+
+RUN mamba install -c ome omero-py
+ARG INSTALL_NODE_VERSION=${INSTALL_NODE_VERSION:-12}
+RUN mamba install nodejs=${INSTALL_NODE_VERSION}
 
 WORKDIR /app
-
-COPY --from=node /usr/local/bin/ /usr/local/bin/
-COPY --from=node /usr/lib/ /usr/lib/
-# See https://github.com/moby/moby/issues/37965
-RUN true
-COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
 COPY requirements requirements
 RUN pip install --no-cache -r requirements/prod.txt
 
@@ -21,11 +23,11 @@ RUN npm install
 COPY webpack.config.js autoapp.py ./
 COPY metrologist metrologist
 COPY assets assets
-COPY .env.example .env
+COPY .env .env
 RUN npm run-script build
 
 # ================================= PRODUCTION =================================
-FROM python:${INSTALL_PYTHON_VERSION}-slim-buster as production
+FROM base as production
 
 WORKDIR /app
 
@@ -34,7 +36,6 @@ RUN chown -R sid:sid /app
 USER sid
 ENV PATH="/home/sid/.local/bin:${PATH}"
 
-COPY --from=builder --chown=sid:sid /app/metrologist/static /app/metrologist/static
 COPY requirements requirements
 RUN pip install --no-cache --user -r requirements/prod.txt
 
@@ -49,8 +50,13 @@ CMD ["-c", "/etc/supervisor/supervisord.conf"]
 
 
 # ================================= DEVELOPMENT ================================
-FROM builder AS development
+FROM base AS development
 RUN pip install --no-cache -r requirements/dev.txt
 EXPOSE 2992
 EXPOSE 5000
 CMD [ "npm", "start" ]
+
+# =================================== MANAGE ===================================
+FROM base AS manage
+RUN pip install --user -r requirements/dev.txt
+ENTRYPOINT [ "flask" ]

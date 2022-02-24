@@ -14,6 +14,8 @@ from metrologist.extensions import (
     debug_toolbar,
     flask_static_digest,
     login_manager,
+    ldap_manager,
+    omero_manager,
     migrate,
 )
 
@@ -41,6 +43,15 @@ def register_extensions(app):
     db.init_app(app)
     csrf_protect.init_app(app)
     login_manager.init_app(app)
+    try:
+        ldap_manager.init_app(app)
+    except Exception:
+        print("No LDAP")
+    try:
+        omero_manager.init_app(app)
+    except Exception:
+        print("No OMERO")
+
     debug_toolbar.init_app(app)
     migrate.init_app(app, db)
     flask_static_digest.init_app(app)

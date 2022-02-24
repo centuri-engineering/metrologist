@@ -20,7 +20,11 @@ from flask import (
 from flask_login import login_required, current_user
 
 from metrologist.microscopes.models import Microscope, Objective, Modality
-from metrologist.microscopes.forms import NewObjectiveForm
+from metrologist.microscopes.forms import (
+    NewObjectiveForm,
+    NewModalityForm,
+    NewMicroscopeForm,
+)
 
 
 blueprint = Blueprint(
@@ -43,3 +47,28 @@ def microscopes(scope="group"):
         microscopes_ = Microscope.query.all()
 
     return render_template("microscopes/microscopes.html", microscopes=microscopes_)
+
+
+@blueprint.route("/new")
+@login_required
+def new_instruments(scope="group"):
+    """List microscopes"""
+    new_objective_form = NewObjectiveForm()
+    new_modality_form = NewModalityForm()
+    new_microscope_form = NewMicroscopeForm()
+
+    if new_objective_form.save.data:
+        new_objective_form.create()
+
+    if new_modality_form.save.data:
+        new_modality_form.create()
+
+    if new_microscope_form.save.data:
+        new_microscope_form.create()
+
+    return render_template(
+        "microscopes/new.html",
+        new_objective_form=new_objective_form,
+        new_modality_form=new_modality_form,
+        new_microscope_form=new_microscope_form,
+    )

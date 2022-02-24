@@ -21,3 +21,7 @@ DEBUG_TB_ENABLED = DEBUG
 DEBUG_TB_INTERCEPT_REDIRECTS = False
 CACHE_TYPE = "simple"  # Can be "memcached", "redis", etc.
 SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+AUTH_METHOD = env.str("AUTH_METHOD", "OMERO")  # can be 'LDAP', 'OMERO'
+OMERO_HOST = env.str("OMERO_HOST", "localhost")
+OMERO_PORT = env.int("OMERO_PORT", 4064)

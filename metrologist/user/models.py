@@ -31,13 +31,15 @@ class User(UserMixin, PkModel):
 
     __tablename__ = "users"
     username = Column(db.String(80), unique=True, nullable=False)
-    email = Column(db.String(80), unique=True, nullable=False)
+    email = Column(db.String(80), unique=True, nullable=True)
     _password = Column("password", db.LargeBinary(128), nullable=True)
     created_at = Column(db.DateTime, nullable=False, default=dt.datetime.utcnow)
     first_name = Column(db.String(30), nullable=True)
     last_name = Column(db.String(30), nullable=True)
     active = Column(db.Boolean(), default=False)
     is_admin = Column(db.Boolean(), default=False)
+    group_id = reference_col("groups", nullable=True)
+    group = relationship("Group", backref=__tablename__)
 
     @hybrid_property
     def password(self):
@@ -61,3 +63,11 @@ class User(UserMixin, PkModel):
     def __repr__(self):
         """Represent instance as a unique string."""
         return f"<User({self.username!r})>"
+
+
+class Group(PkModel):
+    """A group of users"""
+
+    __tablename__ = "groups"
+    groupname = Column(db.String(30), nullable=False)
+    active = Column(db.Boolean(), default=False)

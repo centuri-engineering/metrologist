@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<form action=""
+      class="form mb-4 p-4"
+      method="post"
+      name="create_card"
+      style="margin-left: 8rem; max-width: 76rem;">
+  {{ new_objective_form.csrf_token }}
+
+  <!-- name,lensNA,magnification -->
+  <div class="form-row" title="Objective name (can have serial number)">
+    <div class="col-6">
+      <label class="control-label mb-0">
+        <h4> objective name </h4>
+      </label>
+    </div>
+    <div class="form-row">
+      <div class="col-6" style="margin-bottom: 2rem;">
+        <h4> {{ new_objective_form.name(placeholder="zeiss plan apo sn 123456") }} </h4>
+      </div>
+    </div>
+  </div>
+  <div class="form-row" title="Numerical Aperture">
+    <div class="col-6" style="margin-bottom: 1rem;">
+      {{ new_objective_form.lensNA }}
+    </div>
+  </div>
+  <div class="form-row" title="Magnification">
+    <div class="col-6" style="margin-bottom: 1rem;">
+      {{ new_objective_form.magnification }}
+    </div>
+  </div>
+</form>
+
+{% endblock %}
