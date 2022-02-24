@@ -42,4 +42,4 @@ def microscopes(scope="group"):
     else:
         microscopes_ = Microscope.query.all()
 
-    return render_template("annotations/microscopes.html", microscopes=microscopes_)
+    return render_template("microscopes/microscopes.html", microscopes=microscopes_)
