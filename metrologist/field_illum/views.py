@@ -1,23 +1,60 @@
 """
 homogeneity report elements to include inside templates/homogeneity.html
+missing:
+- specify path to homogeneity_module from MetroloJ-for-python
+- path_temp: define path to save-in and load-from png files.
 """
-from flask import Blueprint, render_template
+
+import os
+import requests
+import tempfile
+import logging
+from datetime import datetime
+
+from flask import (
+    Blueprint,
+    render_template,
+    request,
+    redirect,
+    flash,
+    url_for,
+    send_file,
+    current_app,
+)
+
+from flask_login import login_required, current_use
+
+from metrologist.field_illum.models import Homogeneity
+
+import code.homogeneity_module as homo
+
 
 @blueprint.route("/")
-def homogeneity(path):
-    """ return all elements of homogeneity report inside homogeneity.html """
-    
-    homo_elements = Homogeneity(path)
+@login_required
+def homogeneity():
+    """return all elements of homogeneity report inside homogeneity.html"""
 
-    intensity_plot = Homogeneity.intensity_plot
-    norm_intensity_profile = Homogeneity.norm_intensity_profile
-    max_region_table = Homogeneity.max_region_table
-    microscopy_info_table = Homogeneity.microscopy_info_table
-    profile_state_table = Homogeneity.profile_state_table
+    # define path to save-in and load-from png files.
+    path_temp = "/.../"
 
-    return render_template("homogeneity.html",
-                                                intensity_plot=intensity_plot,
-                                                norm_intensity_profile=norm_intensity_profile,
-                                                max_region_table=max_region_table,
-                                                microscopy_info_table=microscopy_info_table,
-                                                profile_state_table=profile_state_table)
+    # norm_intensity_data_: load .csv, generate and save it as png then load it.
+    norm_intensity_data_ = Homogeneity.norm_intensity_data
+    homo.get_norm_intensity_profile(norm_intensity_data_, save_path=path_temp)
+    norm_intensity_png_path_ = str(path_temp)+"norm_intensity_profile.png"
+
+    # max intensity table
+    max_region_table_ = Homogeneity.max_region_table
+
+    # intensity plot_ : load .csv, generate and save it as png then load it.
+    intensity_plot_data_ = Homogeneity.intensity_plot_data
+    homo.get_intensity_plot(intensity_plot_data_, save_path=path_temp)
+    intensity_plot_png_path_ = str(path_temp)+"intensity_plot.png"
+
+    # profile_stat_table_:
+    profile_stat_table_ = Homogeneity.profile_stat_table
+
+    return render_template("templates/homogeneity.html",
+                           norm_intensity_png_path=norm_intensity_png_path_,
+                           max_region_table=max_region_table_,
+                           intensity_plot_png_path=intensity_plot_png_path_,
+                           profile_stat_table=profile_stat_table_)
