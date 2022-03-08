@@ -38,6 +38,7 @@ class Microscope(PkModel):
     modality = relationship("Modality", backref=__tablename__)
     objectives = relationship("Objective", secondary=microscope_objectives)
     created_at = Column(db.DateTime, nullable=True, default=dt.datetime.utcnow)
+    vendor = Column(db.String(128), nullable=False)
 
 
 class Objective(PkModel):
