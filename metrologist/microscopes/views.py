@@ -41,7 +41,7 @@ def microscopes():
     return render_template("microscopes/microscopes.html", microscopes=microscopes)
 
 
-@blueprint.route("/new")
+@blueprint.route("/new", methods=["GET", "POST"])
 @login_required
 def new_instruments(scope="group"):
     """List microscopes"""
@@ -49,8 +49,15 @@ def new_instruments(scope="group"):
     new_modality_form = NewModalityForm()
     new_microscope_form = NewMicroscopeForm()
 
-    if new_objective_form.save.data:
+    if new_objective_form.validate_on_submit():
         new_objective_form.create()
+        flash("New objective created", "success")
+        return render_template(
+            "microscopes/new.html",
+            new_objective_form=NewObjectiveForm(),
+            new_modality_form=new_modality_form,
+            new_microscope_form=new_microscope_form,
+        )
 
     if new_modality_form.save.data:
         new_modality_form.create()

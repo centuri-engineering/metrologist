@@ -15,28 +15,92 @@
         <h4> objective name </h4>
       </label>
     </div>
-    <div class="form-row">
-      <div class="col-6" style="margin-bottom: 2rem;">
-        <h4> {{ new_objective_form.name(placeholder="zeiss plan apo sn 123456") }} </h4>
-      </div>
+    <div class="col-6" style="margin-bottom: 2rem;">
+      <h4> {{ new_objective_form.name(placeholder="zeiss plan apo sn 123456") }} </h4>
     </div>
   </div>
   <div class="form-row" title="Numerical Aperture">
-    <div class="col-6" style="margin-bottom: 1rem;">
+    <div class="col-6">
       <label class="control-label mb-0">
         <h4> Numerical Aperture </h4>
       </label>
+    </div>
+    <div class="col-6">
       {{ new_objective_form.lensNA }}
     </div>
   </div>
   <div class="form-row" title="Magnification">
+    <div class="col-6" style="margin-bottom: 1rem;">
       <label class="control-label mb-0">
         <h4> Magnification </h4>
       </label>
+    </div>
     <div class="col-6" style="margin-bottom: 1rem;">
       {{ new_objective_form.magnification }} X
     </div>
   </div>
+  <div class="form-row">
+    <div class="col-6" style="margin-bottom: 1rem;">
+      {{ new_objective_form.save }}
+    </div>
+  </div>
+
 </form>
+
+<hr/>
+
+<form action=""
+      class="form mb-4 p-4"
+      method="post"
+      name="create_card"
+      style="margin-left: 8rem; max-width: 76rem;">
+  {{ new_modality_form.csrf_token }}
+
+  <!-- name,lensNA,magnification -->
+  <div class="form-row" title="Modality name (can have serial number)">
+    <div class="col-6">
+      <label class="control-label mb-0">
+        <h4> modality name </h4>
+      </label>
+    </div>
+    <div class="col-6" style="margin-bottom: 2rem;">
+      <h4> {{ new_modality_form.name(placeholder="epifluorescence") }} </h4>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="col-6" style="margin-bottom: 1rem;">
+      {{ new_modality_form.save }}
+    </div>
+  </div>
+
+</form>
+
+<form action=""
+      class="form mb-4 p-4"
+      method="post"
+      name="create_card"
+      style="margin-left: 8rem; max-width: 76rem;">
+  {{ new_modality_form.csrf_token }}
+
+  <!--  -->
+  <div class="form-row" title="Modality name">
+    <div class="col-6">
+      <label class="control-label mb-0">
+        <h4> modality name </h4>
+      </label>
+    </div>
+    <div class="col-6" style="margin-bottom: 2rem;">
+      <h4> {{ new_modality_form.name(placeholder="epifluorescence") }} </h4>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="col-6" style="margin-bottom: 1rem;">
+      {{ new_modality_form.save }}
+    </div>
+  </div>
+
+</form>
+
+
 
 {% endblock %}
