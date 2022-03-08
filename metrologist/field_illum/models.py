@@ -45,33 +45,38 @@ class Homogeneity(PkModel):
         specific pixels and their ratio over the maximum intensity value of
         the array.
     """
-            
+
     __tablename__ = "homogeneities"
 
-    norm_intensity_data = db.Table("norm_intensity_data", metadata=metadata)
+    # user_id
+    user_id = Column(db.ForeignKey("users.id"), nullable=False)
 
-    max_region_table = db.Table(
-        name="max_region_table", metadata=metadata,
-        db.Column(name="nb_pixels", type_=db.Integer, nullable=False),
-        db.Column(name="center_of_mass", type_=db.ARRAY(Integer), nullable=False),
-        db.Column(name="max_intensity", type_=db.Integer, nullable=False)
-        )
+    # microscope
+    microscope_name = Column(db.ForeignKey("microscpoes.id"), nullable=False)
 
-    intensity_plot_data = db.Table(
-        name="intensity_plot_data", metadata=metadata,
-        db.Column(name="x_axis_V_seg", type_=db.Float, nullable=False),
-        db.Column(name="y_axis_V_seg", type_=db.Float, nullable=False),
-        db.Column(name="x_axis_H_seg", type_=db.Float, nullable=False),
-        db.Column(name="y_axis_H_seg", type_=db.Float, nullable=False),
-        db.Column(name="x_axis_diagUD", type_=db.Float, nullable=False),
-        db.Column(name="y_axis_diagUD", type_=db.Float, nullable=False),
-        db.Column(name="x_axis_diagDU", type_=db.Float, nullable=False),
-        db.Column(name="y_axis_diagDU", type_=db.Float, nullable=False)
-        )
+    # datetime
+    created_at = Column(db.DateTime, nullable=True, default=dt.datetime.utcnow)
 
-    profile_stat_table = db.Table(
-        name="profile_stat_table", metadata=metadata,
-        db.Column(name="location", type_=db.Text, nullable=False),
-        db.Column(name="intensity", type_=db.Float, nullable=False),
-        db.Column(name="intensity_relative_to_max", type_=db.Float, nullable=False)
-        )
+    # max_region_table
+    max_region_table_nb_pixels = Column(db.Integer, nullable=False)
+    max_region_table_center_of_mass = Column(db.ARRAY(Integer), nullable=False)
+    max_region_table_max_intensity = Column(db.Integer, nullable=False)
+
+    # intensity_plot_data
+    intensity_plot_data_x_axis_V_seg = Column(db.Float, nullable=False)
+    intensity_plot_data_y_axis_V_seg = Column(db.Float, nullable=False)
+    intensity_plot_data_x_axis_H_seg = Column (db.Float, nullable=False)
+    intensity_plot_data_y_axis_H_seg = Column(db.Float, nullable=False)
+    intensity_plot_data_x_axis_diagUD = Column(db.Float, nullable=False)
+    intensity_plot_data_y_axis_diagUD = Column(db.Float, nullable=False)
+    intensity_plot_data_x_axis_diagDU = Column(db.Float, nullable=False)
+    intensity_plot_data_y_axis_diagDU = Column(db.Float, nullable=False)
+
+    # profile_stat_table 
+    profile_stat_table_location = Column(db.Text, nullable=False)
+    profile_stat_table_intensity = Column(db.Float, nullable=False)
+    profile_stat_table_intensity_relative_to_max = Column(db.Float, nullable=False)
+
+    
+    # norm_intensity_data
+    norm_intensity_data = Column(db.ARRAY(Float, dimensions=2)) 
