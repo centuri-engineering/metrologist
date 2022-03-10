@@ -12,7 +12,8 @@ from metrologist import (
     microscopes,
     field_illum,
     cv,
-    statistics
+    statistics,
+    image_upload
 )
 
 from metrologist.extensions import (
@@ -72,9 +73,13 @@ def register_blueprints(app):
     app.register_blueprint(public.views.blueprint)
     app.register_blueprint(user.views.blueprint)
     app.register_blueprint(microscopes.views.blueprint)
+<<<<<<< HEAD
     app.register_blueprint(field_illum.views.blueprint)
     app.register_blueprint(cv.views.blueprint)
     app.register_blueprint(statistics.views.blueprint)
+=======
+    app.register_blueprint(image_upload.views.blueprint)
+>>>>>>> adds image upload
     return None
 
 

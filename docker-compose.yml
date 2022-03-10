@@ -27,11 +27,15 @@ services:
       target: development
       args:
         <<: *build_args
+    environment:
+      DATA_PATH: "/data"
     image: "metrologist-development"
     depends_on:
       - metrologist_db
     networks:
       - metrologist
+    volumes:
+      - "db_data:/data"
     ports:
       - "5000:5000"
       - "2992:2992"
@@ -51,10 +55,13 @@ services:
     ports:
       - "5000:5000"
     environment:
+      DATA_PATH: "/data"
       FLASK_ENV: production
       FLASK_DEBUG: 0
       LOG_LEVEL: info
       GUNICORN_WORKERS: 4
+    volumes:
+      - "db_data:/data"
     <<: *default_volumes
 
   manage:
