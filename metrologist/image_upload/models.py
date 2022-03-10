@@ -21,5 +21,5 @@ class Image(PkModel):
     __tablename__ = "images"
     created_at = Column(db.DateTime, nullable=True)
     user_id = reference_col("users", nullable=False)
-    users = relationship("User", backref=__tablename__)
+    user = relationship("User", backref=__tablename__)
     path = Column(db.String(), nullable=False)

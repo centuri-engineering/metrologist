@@ -22,8 +22,9 @@ from metrologist.image_upload.models import Image
 
 from metrologist.image_upload.forms import ImageForm
 
-data_path = Path(os.environ.get("DATA_PATH", ".")).resolve()
-
+data_path = (Path(os.environ.get("DATA_PATH", ".")) / "images").resolve()
+if not data_path.exists():
+    data_path.mkdir(mode=511, parents=True)
 
 log = logging.getLogger(__name__)
 
@@ -41,9 +42,15 @@ def upload_image():
         log.info(form.image)
         log.info(request.files)
         storage = request.files["image"]
-        fname = data_path / storage.filename.replace(" ", "_").strip()
-        storage.save(fname)
 
-        image = Image(created_at=datetime.utcnow())
+        fname = (
+            data_path
+            / current_user.username
+            / storage.filename.replace(" ", "_").strip()
+        )
+        if not fname.parent().exists():
+            fname.parent().mkdir()
+        storage.save(fname)
+        image = Image(created_at=datetime.utcnow(), user_id=current_user.id, path=fname)
 
     return render_template("image_upload/image_upload.html", form=form)
