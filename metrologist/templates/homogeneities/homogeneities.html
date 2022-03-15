@@ -1,0 +1,24 @@
+{% extend "layout.html" %}
+{% block content %}
+<div class="container">
+    <h3>Here are the homogeneity report elements</h3>
+    <hr>
+
+    <div>
+        {{max_region_table}}
+    </div>
+
+    <div>
+        {{intensity_plot}}
+    </div>
+    
+    <div>
+        {{profile_state_table}}
+    </div>
+
+    <div>
+        {{norm_intensity_profile}}
+    </div>
+</div>
+
+{% end content %}
