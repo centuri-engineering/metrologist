@@ -3,16 +3,18 @@
 This is heaviliy inspired by https://flask-ldap3-login.readthedocs.io/
 """
 import logging
-
-
-import omero
-from flask_ldap3_login import AuthenticationResponseStatus
-
-from omero.gateway import BlitzGateway
 from enum import Enum
 
-
+from flask_ldap3_login import AuthenticationResponseStatus
 log = logging.getLogger(__name__)
+
+
+try:
+    import omero
+    from omero.gateway import BlitzGateway
+except ImportError:
+    log.info("omero module not found, this will not work")
+
 
 
 class AuthenticationResponse:
