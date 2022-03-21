@@ -1,81 +1,84 @@
 """
-homogeneity report elements to include inside 
+homogeneity report elements to include inside
 templates/homogeneities/homogeneity.html
 """
+
 from flask import Blueprint, render_template
+
+import homo_module as homo
 from metrologist.field_illum.models import Homogeneity
+from metrologist.upload_image.forms import UploadImage
+
+
+blueprint = Blueprint(
+    "field_illum", __name__, url_prefix="/field_illum", static_folder="../static"
+)
+
 
 @blueprint.route("/")
-def homogeneity():
-    """ return all elements of homogeneity report inside homogeneity.html """
+def homogeneity_new_record():
+    """
+    this function generates the homogeneity report elements on the input image in
+    order to include them on the corresponding web page.
+    the generated plots will be saved in a temporary dir.
+    """
 
-    # max_region_table
-    
-    max_region_table = select(
-        homogeneities.c.max_region_table_nb_pixels,
-        homogeneities.c.max_region_table_center_of_mass,
-        homogeneities.c.max_region_table_max_intensity
-    )
+    # load input image
+    image = read_from_file("/examples/homogeneity_ex1.tif")
 
-    max_region_table.columns = [
-        "nb_pixels",
-        "center of mass",
-        "max_intensity"
-    ]
+    # temp path for plots
+    graph_path_temp = tempfile.TemporaryDirectory()
+    intensity_plot_path = graph_path_temp + "intensity_plot.png"
+    norm_intensity_profile_path = graph_path_temp + "norm_intensity_profile.png"
 
-    # intensity_plot
-    intensity_plot_data = select(
-        homogeneities.c.intensity_plot_data_x_axis_V_seg,
-        homogeneities.c.intensity_plot_data_y_axis_V_seg,
-        homogeneities.c.intensity_plot_data_x_axis_H_seg,
-        homogeneities.c.intensity_plot_data_y_axis_H_seg,
-        homogeneities.c.intensity_plot_data_x_axis_diagUD,
-        homogeneities.c.intensity_plot_data_y_axis_diagUD,
-        homogeneities.c.intensity_plot_data_x_axis_diagDU,
-        homogeneities.c.intensity_plot_data_y_axis_diagDU
-    )
-
-    def get_intensity_plot_(data=intensity_plot_data):
-        x_data = data.iloc[:, [0,2,4,6]]
-        y_data = data.iloc[:, [1,3,5,7]]
-
-        # plot
-        colors = ["b", "g", "r", "y"]
-        labels = ["V_seg", "H_seg", "diagUD", "diagDU"]
-
-        fig = plt.figure()
-        for i in range(8):
-            x_values = x_data.iloc[:,i]
-            y_values = y_data.iloc[:,i]
-            plt.plot(x_values, y_values, color=colors[i], label=labels[i], figure=fig)        
-        
-        plt.axvline(0, linestyle='--')
-        plt.title("Intensity Profiles", figure=fig)
-        plt.xlim((min(get_x_axis(diagUD))-25, max(get_x_axis(diagUD))+25))
-        plt.legend()
+    # get homogeneity report element for input image
+    # plots will be saved into graph_path_temp (arg: save_path)
  
-    # profile_stat_table 
-    profile_state_table = select(
-        homogeneities.c.profile_stat_table_location,
-        homogeneities.c.profile_stat_table_intensity,
-        homogeneities.c.profile_stat_table_intensity_relative_to_max
+    max_region_info  = homo.get_max_intensity_region(image)
+
+    profile_stat_table = homo.get_profile_statistics_table(image)
+
+    _ , intensity_plot_data = homo.get_intensity_plot(
+        image,
+        save_path=graph_path_temp
+        )
+
+    norm_intensity_matrix = homo.get_norm_intensity_matrix(image)
+    homo.get_norm_intensity_profile(
+        image,
+        save_path=graph_path_temp
+        )
+
+    # define Homogeneity object attributes 
+
+    homogeneity_record = Homogeneity(
+
+        # max_region_table
+        max_region_table_nb_pixels = max_region_info["nb pixels"]
+        max_region_table_center_of_mass = max_region_info["center of mass"]
+        max_region_table_max_intensity = max_region_info["max intensity"]
+
+        # profile_stat_table
+        profile_stat_table_location = profile_stat_table["location"]
+        profile_stat_table_intensity = profile_stat_table["intensity"]
+        profile_stat_table_intensity_relative_to_max = profile_stat_table["intensity relative to max"]
+
+        # intensity_plot
+        intensity_plot_data_x_axis_V_seg = intensity_plot_data["x_axis_V_seg"]
+        intensity_plot_data_y_axis_V_seg = intensity_plot_data["y_axis_V_seg"]
+        intensity_plot_data_x_axis_H_seg = intensity_plot_data["x_axis_H_seg"]
+        intensity_plot_data_y_axis_H_seg = intensity_plot_data["y_axis_H_seg"]
+        intensity_plot_data_x_axis_diagUD = intensity_plot_data["x_axis_diagUD"]
+        intensity_plot_data_y_axis_diagUD = intensity_plot_data["y_axis_diagUD"]
+        intensity_plot_data_x_axis_diagDU = intensity_plot_data["x_axis_diagDU"]
+        intensity_plot_data_y_axis_diagDU = intensity_plot_data["y_axis_diagDU"]
+
+        # norm_intensity_data
+        norm_intensity_data = norm_intensity_matrix
     )
-
-    profile_state_table.columns = [
-        "location",
-        "intensity",
-        "relative_to_max"
-    ]
-
-    # norm_intensity_profile
-    norm_intensity_data = db.select(homogeneities.c.intensity_plot_data)
-    def get_norm_intensity_profile_(norm_intensity_data=norm_intensity_data):
-        return homo.get_norm_intensity_profile(norm_intensity_data)
 
     return render_template(
-        "homogeneity.html",
-        max_region_table=max_region_table,
-        intensity_plot=get_intensity_plot_(),
-        profile_state_table=profile_state_table,
-        norm_intensity_profile=get_norm_intensity_profile_()
+        homogeneity_record,
+        intensity_plot_path,
+        norm_intensity_profile_path
         )

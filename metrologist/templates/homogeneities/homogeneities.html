@@ -1,24 +1,58 @@
 {% extend "layout.html" %}
 {% block content %}
 <div class="container">
-    <h3>Here are the homogeneity report elements</h3>
+    <h3>Homogeneity Report</h3>
     <hr>
 
+    <!--max_region_table-->
     <div>
-        {{max_region_table}}
+        <h4>Maximum intensity region table</h4>
+        <table>
+            <tr>
+                <th>nb pixels</th>
+                <th>center of mass</th>
+                <th>max intensity</th>
+            </tr>
+            <tr>
+                <td>{{homogeneity_record.max_region_table_nb_pixels}}</td>
+                <td>{{homogeneity_record.max_region_table_center_of_mass}}</td>
+                <td>{{homogeneity_record.max_region_table_max_intensity}}</td>
+            </tr>
+        </table>
     </div>
 
+    <!--profile_state_table-->
     <div>
-        {{intensity_plot}}
+        <h4>Profile Statistics Table</h4>
+        <table>
+            <tr>
+                <th>location</th>
+                <th>intensity</th>
+                <th>intensity relative to max</th>
+            </tr>
+            {% for row_nb in range(len(homogeneity_record.profile_stat_table_location)) %}
+                <tr>
+                    <td>{{homogeneity_record.profile_stat_table_location[row_nb]}}</td>
+                    <td>{{homogeneity_record.profile_stat_table_intensity[row_nb]}}</td>
+                    <td>{{homogeneity_record.profile_stat_table_intensity_relative_to_max[row_nb]}}</td>
+                </tr>
+            {% endfor %}
+            </tr>
+        </table>
     </div>
     
+    <!--intensity_plot-->
     <div>
-        {{profile_state_table}}
+        <h4>Intensity Plot</h4>
+        <img src="{{intensity_plot_path}}" alt="intensity plot"> </img>
     </div>
 
+    <!--norm_intensity_profile-->
     <div>
-        {{norm_intensity_profile}}
+        <h4>Normalized Intensity Profile</h4>
+        <img src="{{norm_intensity_profile_path}}" alt="normalized intensity profile"> </img>
     </div>
+
 </div>
 
 {% end content %}
