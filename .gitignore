@@ -56,3 +56,6 @@ env/
 
 # Development database
 *.db
+
+#MacOS
+.DS_Store
