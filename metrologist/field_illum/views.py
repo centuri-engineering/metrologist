@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
 """
 homogeneity report elements to include inside
 templates/homogeneities/homogeneity.html
 """
 
 from flask import Blueprint, render_template
+from flask_login import login_required
 
 from metrologist.field_illum.models import Homogeneity
 # from metrologist.upload_image.forms import UploadImage
@@ -17,7 +19,8 @@ blueprint = Blueprint(
 
 
 @blueprint.route("/")
-def homogeneity_new_record():
+@login_required
+def field_illum():
     """
     this function generates the homogeneity report elements on the input image in
     order to include them on the corresponding web page.
@@ -29,7 +32,7 @@ def homogeneity_new_record():
         path="/examples/homogeneity_ex1.tif",
         single=True
         )
-
+ 
     # temp path for plots
     graph_path_temp = TemporaryDirectory()
     intensity_plot_path = graph_path_temp + "intensity_plot.png"
@@ -56,33 +59,26 @@ def homogeneity_new_record():
     # define Homogeneity object attributes 
 
     homogeneity_record = Homogeneity(
-
-        # max_region_table
-        max_region_table_nb_pixels = max_region_info["nb pixels"]
-        max_region_table_center_of_mass = max_region_info["center of mass"]
-        max_region_table_max_intensity = max_region_info["max intensity"]
-
-        # profile_stat_table
-        profile_stat_table_location = profile_stat_table["location"]
-        profile_stat_table_intensity = profile_stat_table["intensity"]
-        profile_stat_table_intensity_relative_to_max = profile_stat_table["intensity relative to max"]
-
-        # intensity_plot
-        intensity_plot_data_x_axis_V_seg = intensity_plot_data["x_axis_V_seg"]
-        intensity_plot_data_y_axis_V_seg = intensity_plot_data["y_axis_V_seg"]
-        intensity_plot_data_x_axis_H_seg = intensity_plot_data["x_axis_H_seg"]
-        intensity_plot_data_y_axis_H_seg = intensity_plot_data["y_axis_H_seg"]
-        intensity_plot_data_x_axis_diagUD = intensity_plot_data["x_axis_diagUD"]
-        intensity_plot_data_y_axis_diagUD = intensity_plot_data["y_axis_diagUD"]
-        intensity_plot_data_x_axis_diagDU = intensity_plot_data["x_axis_diagDU"]
-        intensity_plot_data_y_axis_diagDU = intensity_plot_data["y_axis_diagDU"]
-
-        # norm_intensity_data
+        max_region_table_nb_pixels = max_region_info["nb pixels"],
+        max_region_table_center_of_mass = max_region_info["center of mass"],
+        max_region_table_max_intensity = max_region_info["max intensity"],
+        profile_stat_table_location = profile_stat_table["location"],
+        profile_stat_table_intensity = profile_stat_table["intensity"],
+        profile_stat_table_intensity_relative_to_max = profile_stat_table["intensity relative to max"],
+        intensity_plot_data_x_axis_V_seg = intensity_plot_data["x_axis_V_seg"],
+        intensity_plot_data_y_axis_V_seg = intensity_plot_data["y_axis_V_seg"],
+        intensity_plot_data_x_axis_H_seg = intensity_plot_data["x_axis_H_seg"],
+        intensity_plot_data_y_axis_H_seg = intensity_plot_data["y_axis_H_seg"],
+        intensity_plot_data_x_axis_diagUD = intensity_plot_data["x_axis_diagUD"],
+        intensity_plot_data_y_axis_diagUD = intensity_plot_data["y_axis_diagUD"],
+        intensity_plot_data_x_axis_diagDU = intensity_plot_data["x_axis_diagDU"],
+        intensity_plot_data_y_axis_diagDU = intensity_plot_data["y_axis_diagDU"],
         norm_intensity_data = norm_intensity_matrix
         )
 
     return render_template(
-        homogeneity_record,
-        intensity_plot_path,
-        norm_intensity_profile_path
+        "field_illum/field_illum.html",
+        homogeneity_record=homogeneity_record,
+        intensity_plot_path=intensity_plot_path,
+        norm_intensity_profile_path=norm_intensity_profile_path
         )

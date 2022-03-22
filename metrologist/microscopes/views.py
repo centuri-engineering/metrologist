@@ -31,7 +31,6 @@ blueprint = Blueprint(
     "microscopes", __name__, url_prefix="/microscopes", static_folder="../static"
 )
 
-
 @blueprint.route("/")
 @login_required
 def microscopes():
