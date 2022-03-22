@@ -5,10 +5,11 @@ templates/homogeneities/homogeneity.html
 
 from flask import Blueprint, render_template
 
-import homo_module as homo
 from metrologist.field_illum.models import Homogeneity
-from metrologist.upload_image.forms import UploadImage
+# from metrologist.upload_image.forms import UploadImage
 
+from metrologist.metroloj import common, homo
+from tempfile import TemporaryDirectory
 
 blueprint = Blueprint(
     "field_illum", __name__, url_prefix="/field_illum", static_folder="../static"
@@ -24,10 +25,13 @@ def homogeneity_new_record():
     """
 
     # load input image
-    image = read_from_file("/examples/homogeneity_ex1.tif")
+    image = common.get_images_from_multi_tiff(
+        path="/examples/homogeneity_ex1.tif",
+        single=True
+        )
 
     # temp path for plots
-    graph_path_temp = tempfile.TemporaryDirectory()
+    graph_path_temp = TemporaryDirectory()
     intensity_plot_path = graph_path_temp + "intensity_plot.png"
     norm_intensity_profile_path = graph_path_temp + "norm_intensity_profile.png"
 
@@ -75,7 +79,7 @@ def homogeneity_new_record():
 
         # norm_intensity_data
         norm_intensity_data = norm_intensity_matrix
-    )
+        )
 
     return render_template(
         homogeneity_record,
