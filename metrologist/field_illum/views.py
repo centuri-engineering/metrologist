@@ -19,7 +19,7 @@ blueprint = Blueprint(
 
 
 @blueprint.route("/")
-@login_required
+
 def field_illum():
     """
     this function generates the homogeneity report elements on the input image in

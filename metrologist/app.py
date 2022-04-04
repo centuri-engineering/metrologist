@@ -63,6 +63,8 @@ def register_blueprints(app):
     app.register_blueprint(public.views.blueprint)
     app.register_blueprint(user.views.blueprint)
     app.register_blueprint(microscopes.views.blueprint)
+    app.register_blueprint(field_illum.views.blueprint)
+    app.register_blueprint(cv.views.blueprint)
     return None
 
 

@@ -216,9 +216,7 @@ def get_cv_table_global(tiff_data):
                "cvs relative to min value": cv_normalized
                }
 
-    cv_table = pd.DataFrame(cv_dict)
-
-    return cv_table
+    return cv_dict
 
 
 """
@@ -458,11 +456,11 @@ def get_cv_report_elements(
         )
 
     # Get cv table
-    cv = get_cv_table_global(tiff_data)
+    cv_table = pd.DataFrame(get_cv_table_global(tiff_data))
     cv_report_elements = [img_original_marked_roi_label,
                           microscopy_info_table,
                           hist_nbpixels_vs_grayscale,
-                          cv]
+                          cv_table]
 
     return cv_report_elements
 

@@ -13,9 +13,6 @@ from metrologist.database import (
 
 log = logging.getLogger(__name__)
 
-import homogeneity_module as homo
-import common_module as cm
-
 """
 sqlalchemy() imported as db (db = SQLAlchemy())
 when imported metrologist.database
@@ -74,9 +71,9 @@ class Homogeneity(PkModel):
 
     # profile_stat_table 
     profile_stat_table_location = Column(db.String(128), nullable=False)
-    profile_stat_table_intensity = Column(db.Float, nullable=False)
-    profile_stat_table_intensity_relative_to_max = Column(db.Float, nullable=False)
+    profile_stat_table_intensity = Column(db.Float(), nullable=False)
+    profile_stat_table_intensity_relative_to_max = Column(db.Float(), nullable=False)
 
     
     # norm_intensity_data
-    norm_intensity_data = Column(db.ARRAY(Float, dimensions=2)) 
+    norm_intensity_data = Column(db.ARRAY(Float(), dimensions=2)) 

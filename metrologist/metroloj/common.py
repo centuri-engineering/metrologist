@@ -13,7 +13,7 @@ import pandas as pd
 from PIL import Image
 
 
-def get_images_from_multi_tiff(path, single=False):
+def get_images_from_multi_tiff(path, single=False, zdim=False):
     """
     Import .tif file from a given path and convert it to a 3d np.array where
     the first dimension represent the image index.
@@ -25,6 +25,9 @@ def get_images_from_multi_tiff(path, single=False):
         the tif file must carry only 2d arrays of the same dimensions.
     single : boolean, optional
         If True, renders a single 2d image,i.e. only the first image.
+        The default is False.
+    zdim : boolean, optional
+        If True, return also the nb of images of the input file.
         The default is False.
 
     Returns
@@ -49,8 +52,11 @@ def get_images_from_multi_tiff(path, single=False):
     # if the output must be 2d array
     if single==True:
         tiff_final = tiff_final[0]
-
-    return tiff_final
+        return tiff_final
+    elif zdim==True:
+        return tiff_final, zdim
+    else:
+        return tiff_final
 
 
 """
