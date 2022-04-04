@@ -1,4 +1,10 @@
 """User models."""
+
+"""
+Rk: only works on single tiff file. 
+Missing: make it work with a multi tiff file.
+"""
+
 import datetime as dt
 import logging
 
@@ -49,6 +55,14 @@ class Cv(PkModel):
     created_at = Column(db.DateTime, nullable=True, default=dt.datetime.utcnow)
 
     # hist_nbpixels_vs_grayscale
+    hist_x_0 = db.Column(db.ARRAY(Float), nullable=False)
+    hist_y_0 = db.Column(db.ARRAY(Float), nullable=False)
+
+    # images with marked roi and label: stored as numpy arrays
+    roi_data_0 = db.Column(db.ARRAY(Float), nullable=False)
+
+    """for mutli tiff file: trial
+    # hist_nbpixels_vs_grayscale
     for i in range(nb_images):
         index_i = i+1
         colname_x, colname_y = f"hist_x_{index_i}", f"hist_y_{index_i}"
@@ -58,9 +72,10 @@ class Cv(PkModel):
     # images with marked roi and label: stored as numpy arrays
     for j in range(nb_images):
         index_j = j+1
-        colname = f"image_marked_{index_j}"
+        colname = f"roi_data_{index_j}"
         exec(f"{colname}=db.Column(db.ARRAY(Float), nullable=False)")
-    
+    """
+
     # cv_table
     cv_table_sd = db.Column(db.Float(), nullable=False)
     cv_table_average = db.Column(db.Float(), nullable=False)

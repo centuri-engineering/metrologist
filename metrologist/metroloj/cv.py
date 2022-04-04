@@ -68,7 +68,12 @@ def get_roi_default(tiff_final):
     ROI_Original_ratio_list = []
 
     # we assume that images from same tiff file have the same size
-    nb_images, xdim, ydim = tiff_final.shape
+    try:
+        nb_images, xdim, ydim = tiff_final.shape
+    except ValueError:
+        xdim, ydim = tiff_final.shape
+        nb_images = 1
+
     # we want the central 20% of the original image
     h, w = int(xdim*0.4), int(ydim*0.4)
     # roi defined by top-left (start) and bottom-right (end) pixels
@@ -81,11 +86,11 @@ def get_roi_default(tiff_final):
     xdim_roi, ydim_roi = endx-startx, endy-starty
     roi_final = np.zeros((nb_images, xdim_roi, ydim_roi), dtype=int)
 
-    for i in range(nb_images):
-        roi_data_temp = tiff_final[i][startx:endx, starty:endy]
+    if nb_images == 1:
+        roi_data_temp = tiff_final[startx:endx, starty:endy]
 
         # add roi_temp to the final roi
-        roi_final[i] = roi_data_temp
+        roi_final = roi_data_temp
 
         # lists for info dataframe
         roi_nb_pixels = roi_data_temp.shape
@@ -93,6 +98,20 @@ def get_roi_default(tiff_final):
         ROI_start_pixel_list.append(roi_start_pixel)
         ROI_end_pixel_list.append(roi_end_pixel)
         ROI_Original_ratio_list.append("20%")
+
+    else:
+        for i in range(nb_images):
+            roi_data_temp = tiff_final[i][startx:endx, starty:endy]
+
+            # add roi_temp to the final roi
+            roi_final[i] = roi_data_temp
+
+            # lists for info dataframe
+            roi_nb_pixels = roi_data_temp.shape
+            ROI_nb_pixels_list.append(roi_nb_pixels)
+            ROI_start_pixel_list.append(roi_start_pixel)
+            ROI_end_pixel_list.append(roi_end_pixel)
+            ROI_Original_ratio_list.append("20%")
 
     # dict enclosing info about the ROI
     ROI_info["ROI_nb_pixels"] = ROI_nb_pixels_list
@@ -107,7 +126,7 @@ def get_roi_default(tiff_final):
 """
 # ex1: one image in tiff file
 img = cm.get_images_from_multi_tiff(path_cv)
-roi_df, roi_array = get_roi_default(img)
+roi_df, roi_array = get_roi_default(img[0])
 
 # ex1: 2 images in tiff file
 img = cm.get_images_from_multi_tiff(path_cv)
@@ -159,10 +178,47 @@ get_segmented_image(img)
 """
 
 
+# 2. Compute cv
+
+
+def get_segmented_image(img):
+    """
+    Given a 2D np.array, it replaces all the pixels with an intensity below
+    a threshold otsu value by 0 as well as artifacts connected to image border.
+
+    Parameters
+    ----------
+    img : np.array
+        Original image in a 2D format.
+
+    Returns
+    -------
+    img : np.array
+        2D np.array where only pixels with significant intensity are given
+        non null values.
+
+    """
+    # define threshold
+    thresh = threshold_otsu(img)
+    # boolean matrice: True represent the pixels of interest
+    bw = closing(img > thresh, square(3))
+    # remove artifacts connected to image border
+    cleared = clear_border(bw)
+
+    # get segmented image
+    xtot, ytot = np.shape(img)
+
+    for i in range(xtot):
+        for j in range(ytot):
+            if not cleared[i, j]:
+                img[i, j] = 0
+    return img
+
+
 """
 # ex:
 img = cm.get_images_from_multi_tiff(path_cv)[0]
-get_non_zero_vec_from_seg_image(img)
+get_segmented_image(img)
 """
 
 
@@ -173,13 +229,13 @@ def get_cv_table_global(tiff_data):
 
     Parameters
     ----------
-    tiff_data : list
-        List of np.arrays
+    tiff_data : np.array
+        3d np.arrays
 
     Returns
     -------
-    cv_table : pd.Data.Frame
-        Dataframe enclosing info about the pixels with significant intensities
+    cv_table : dict
+        dict enclosing info about the pixels with significant intensities
         of the segemented ROI of each given np.array:
             1. standard deviation
             2. mean
@@ -209,11 +265,11 @@ def get_cv_table_global(tiff_data):
 
     cv_normalized = np.divide(cv_list, min(cv_list))
 
-    cv_dict = {"Standard deviation": std_intensity_list,
-               "Average": mean_intensity_list,
-               "Nb pixels": nb_pixels_list,
+    cv_dict = {"sd": std_intensity_list,
+               "average": mean_intensity_list,
+               "nb_pixels": nb_pixels_list,
                "cv": cv_list,
-               "cvs relative to min value": cv_normalized
+               "cv_relative_to_min": cv_normalized
                }
 
     return cv_dict
@@ -233,9 +289,106 @@ get_cv_table_global(img)
 # 3. Report: Get Tiff images with ROIs marked on them.
 
 
-def get_marked_roi_and_label(tiff_data, output_dir=None):
+def get_marked_roi_and_label_single_img(img, show=False, output_dir=None):
     """
-    This function:
+    This function do the following on a single np.array (image):
+    - labelise by a diffrent color the pixels that are considered when
+    computing the cv value, i.e. having a higher intensity than the
+    threshold otsu value.
+    - mark by a red rectangle the region of pixels having an intensity higher
+    than a threshold otsu
+    which are used
+    - mark by a white rectangle the roi region, i.e. the central 20% region
+    of the inputed image.
+
+    Parameters
+    ----------
+    img : np.array
+        2d np.array
+    show : bool, optional
+        If True, the resulting array (image) is shown. The default is False.
+    output_dir : str, optional.
+        directory path to save the image.
+
+    Returns
+    -------
+    image_label_overlay : np.array
+        2d np.array corresponding to the digital image where:
+            - pixels that are considered when computing the cv value are marked
+            by a different color.
+            - the region of pixels having an intensity higher than a threshold
+            otsu is mark by a red rectangle.
+            - roi region, i.e. the central 20% region of the inputed image,
+            marked by a white rectangle.
+    """
+
+    image = img.astype(np.uint8)
+    thresh = threshold_otsu(image)
+    bw = closing(image > thresh, square(3))
+
+    # limit the labelization to the roi region
+    # roi coordinates
+    roi_info, roi_arrays = get_roi_default(image)
+    roi_minr, roi_minc = roi_info["ROI_start_pixel"][0]
+    roi_maxr, roi_maxc = roi_info["ROI_end_pixel"][0]
+
+    # remove outside roi region
+    cleared = clear_border(bw, buffer_size=int((512/2)-roi_minr))
+
+    # label image regions
+    label_image = label(cleared)
+
+    # set background to transparent
+    image_label_overlay = label2rgb(label_image, image=image, bg_label=0)
+
+    # mark roi on image_label_overlay
+    rr, cc = polygon_perimeter([roi_minr, roi_minr, roi_maxr, roi_maxr],
+                               [roi_minc, roi_maxc, roi_maxc, roi_minc],
+                               shape=image.shape,
+                               clip=True)
+    image_label_overlay[rr, cc, :] = 255
+
+    # show locally
+    if show is True:
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.imshow(image_label_overlay)
+
+        ax.set_axis_off()
+        plt.tight_layout()
+
+        plt.show()
+
+    # save
+    if output_dir is not None:
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.imshow(image_label_overlay)
+
+        ax.set_axis_off()
+        plt.tight_layout()
+
+        output_path = output_dir + "0.roi.png"
+        plt.savefig(output_path,
+                    bbox_inches='tight',
+                    pad_inches=0,
+                    format="png")
+    else:
+        return image_label_overlay
+
+
+"""
+img = cm.get_images_from_multi_tiff(path_cv)
+output_path = "/Users/Youssef/Desktop/"
+get_marked_roi_and_label_single_img(img[1],show=True, output_dir=output_path)
+get_marked_roi_and_label_single_img(img[0],show=True)
+"""
+
+# get_marked_roi_and_label_multi_img
+
+
+def get_marked_roi_and_label_multi_img(tiff_data, output_dir):
+    """
+    This function modify and save the multi tiff file into distinct png files.
+    For each image of the input multitif file, this function:
     - labelise by a diffrent color the pixels that are considered when
     computing the cv value, i.e. having a higher intensity than the
     threshold otsu value.
@@ -258,73 +411,34 @@ def get_marked_roi_and_label(tiff_data, output_dir=None):
         1D list of figures of type matplotlib.figure.Figure.
 
     """
-    fig_list = []
     for i in range(len(tiff_data)):
-        image = tiff_data[i].astype(np.uint8)
-        thresh = threshold_otsu(image)
-        bw = closing(image > thresh, square(3))
-
-        # limit the labelization to the roi region
-        # roi coordinates
-        roi_info, roi_arrays = get_roi_default(tiff_data)
-        roi_minr, roi_minc = roi_info["ROI_start_pixel"][0]
-        roi_maxr, roi_maxc = roi_info["ROI_end_pixel"][0]
-
-        # remove outside roi region
-        cleared = clear_border(bw, buffer_size=int((512/2)-roi_minr))
-
-        # label image regions
-        label_image = label(cleared)
-
-        # set background to transparent
-        image_label_overlay = label2rgb(label_image, image=image, bg_label=0)
-
-        # mark roi on image_label_overlay
-        rr, cc = polygon_perimeter([roi_minr, roi_minr, roi_maxr, roi_maxr],
-                                   [roi_minc, roi_maxc, roi_maxc, roi_minc],
-                                   shape=tiff_data[i].shape,
-                                   clip=True)
-        image_label_overlay[rr, cc, :] = 255
+        image_temp = get_marked_roi_and_label_single_img(
+            tiff_data[i],
+            show=True
+            )
 
         fig, ax = plt.subplots(figsize=(10, 6))
-        ax.imshow(image_label_overlay)
-
-        for region in regionprops(label_image):
-            minr, minc, maxr, maxc = region.bbox
-            # take regions with large enough areas and inside the ROI
-            if region.area >= 100:
-                # draw rectangle around segmented coins
-                rect = mpatches.Rectangle((minc, minr), maxc - minc,
-                                          maxr - minr, fill=False,
-                                          edgecolor='red', linewidth=2)
-                ax.add_patch(rect)
-
+        ax.imshow(image_temp)
         ax.set_axis_off()
         plt.tight_layout()
-        fig_list.append(fig)
 
-        if output_dir is not None:
-            plt.savefig(output_dir+str(i)+".roi.png",
-                        bbox_inches='tight',
-                        pad_inches=0,
-                        format="png")
-        plt.show()
-    return fig_list
+        plt.savefig(output_dir+f"{i}.roi.png",
+                    bbox_inches='tight',
+                    pad_inches=0,
+                    format="png")
 
 
 """
 tiff_data = cm.get_images_from_multi_tiff(path_cv)
-output_dir = "/Users/Youssef/Desktop/"
-figure = get_marked_roi_and_label(tiff_data)
-figure[0]
-figure[1]
-figure = get_marked_roi_and_label(tiff_data, output_dir)
+output_path = "/Users/Youssef/Desktop/"
+figure = get_marked_roi_and_label_multi_img(tiff_data, output_path)
 """
+
 
 # 4. Get histogram : nb of pixels per intensity values
 
 
-def get_hist_data(img):
+def get_hist_data(img, nb_img=1):
     """
     get from an image the number of pixels per gray intensity.
 
@@ -332,26 +446,52 @@ def get_hist_data(img):
     ----------
     img : np.array
         Original 2D image.
+    nb_img : int
+        number of images in a multitiff file.
+        the default is 1.
 
     Returns
     -------
-    count_df : 2 np.arrays
-            1. 1d np.array: intensity values
-            2. 1d np.array: nb of pixels
-
+    if nb_img = 1 :
+        intensity_value
+        nb_pixel
+    else :
+        table of intensity_value
+        table of nb_pixel
     """
 
-    # convert matrix to one vector
-    ball_intensity_vec = get_segmented_image(img)
-    ball_intensity_vec.flatten()
-    ball_intensity_vec = ball_intensity_vec[ball_intensity_vec != 0]
-    np.ndarray.sort(ball_intensity_vec)
+    if nb_img=1:
+        # convert matrix to one vector
+        ball_intensity_vec = get_segmented_image(img)
+        ball_intensity_vec.flatten()
+        ball_intensity_vec = ball_intensity_vec[ball_intensity_vec != 0]
+        np.ndarray.sort(ball_intensity_vec)
 
-    # build a dataframe
-    intensity_value, nb_pixel = np.unique(ball_intensity_vec,
-                                          return_counts=True)
+        # build a table
+        intensity_value, nb_pixel = np.unique(
+            ball_intensity_vec,
+            return_counts=True)
+        return intensity_value, nb_pixel
 
-    return intensity_value, nb_pixel
+    else:
+        intensity_value_tab = np.zeros(shape=(255,nb_img))
+        nb_pixel_tab = np.zeros(shape=(255,nb_img))
+        for i in range(nb_img):
+            # convert matrix to one vector
+            ball_intensity_vec = get_segmented_image(img[i])
+            ball_intensity_vec.flatten()
+            ball_intensity_vec = ball_intensity_vec[ball_intensity_vec != 0]
+            np.ndarray.sort(ball_intensity_vec)
+
+            # build a table
+            intensity_value, nb_pixel = np.unique(
+                ball_intensity_vec,
+                return_counts=True)
+            
+            # store into a numpy array
+            intensity_value_tab[:,i] = intensity_value
+            nb_pixel_tab[:,i] = nb_pixel
+        return intensity_value_tab, nb_pixel_tab
 
 
 """
@@ -359,10 +499,11 @@ def get_hist_data(img):
 img = cm.get_images_from_multi_tiff(path_cv)
 roi_df, roi_arrays = get_roi_default(img)
 get_hist_data(roi_arrays[0])
+get_hist_data(img, nb_img=2)
 """
 
 
-def get_hist_nbpixel_vs_grayintensity(tiff_data):
+def get_hist_nbpixel_vs_grayintensity(tiff_data, output_dir=None):
     """
     For a given list of images in np.array format, return a histogram
     of the number of pixels per gray intensity of each of the given arrays.
@@ -395,6 +536,12 @@ def get_hist_nbpixel_vs_grayintensity(tiff_data):
     plt.ylabel("Nb Pixels")
     plt.legend()
     plt.title("Intensity histogram", figure=fig)
+
+    if output_dir is not None:
+        plt.savefig(output_dir+"hist.png",
+                    bbox_inches='tight',
+                    pad_inches=0,
+                    format="png")   
 
     return fig
 
@@ -448,7 +595,10 @@ def get_cv_report_elements(
     hist_nbpixels_vs_grayscale = get_hist_nbpixel_vs_grayintensity(tiff_data)
 
     # Get Images with Marked ROIs on them
-    img_original_marked_roi_label = get_marked_roi_and_label(tiff_data)
+    get_marked_roi_and_label_multi_img(
+        tiff_data,
+        output_dir=output_dir="Users/Youssef/Desktop/")
+    
 
     # Get Microscope info dataframe
     microscopy_info_table = cm.get_microscopy_info(
@@ -525,7 +675,7 @@ def save_cv_report_elements(
     hist_nbpixels_vs_grayscale = cv_report_elements_temp[2]
     cv_table = cv_report_elements_temp[3]
 
-    get_marked_roi_and_label(tiff_data, output_dir)
+    get_marked_roi_and_label_multi_img(tiff_data, output_dir)
 
     microscopy_info_table.to_csv(output_dir+"microscopy_info")
     hist_nbpixels_vs_grayscale.savefig(
