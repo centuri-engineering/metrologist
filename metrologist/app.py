@@ -5,7 +5,15 @@ import sys
 
 from flask import Flask, render_template
 
-from metrologist import commands, public, user, microscopes
+from metrologist import (
+    commands,
+    public,
+    user,
+    microscopes,
+    field_illum,
+    cv
+)
+
 from metrologist.extensions import (
     bcrypt,
     cache,
