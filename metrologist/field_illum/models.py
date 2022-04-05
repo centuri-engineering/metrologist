@@ -56,18 +56,18 @@ class Homogeneity(PkModel):
 
     # max_region_table
     max_region_table_nb_pixels = Column(db.Integer, nullable=False)
-    max_region_table_center_of_mass = Column(db.ARRAY(Integer), nullable=False)
+    max_region_table_center_of_mass = Column(db.ARRAY(db.Integer), nullable=False)
     max_region_table_max_intensity = Column(db.Integer, nullable=False)
 
     # intensity_plot_data
-    intensity_plot_data_x_axis_V_seg = Column(db.ARRAY(Float), nullable=False)
-    intensity_plot_data_y_axis_V_seg = Column(db.ARRAY(Float), nullable=False)
-    intensity_plot_data_x_axis_H_seg = Column(db.ARRAY(Float), nullable=False)
-    intensity_plot_data_y_axis_H_seg = Column(db.ARRAY(Float), nullable=False)
-    intensity_plot_data_x_axis_diagUD = Column(db.ARRAY(Float), nullable=False)
-    intensity_plot_data_y_axis_diagUD = Column(db.ARRAY(Float), nullable=False)
-    intensity_plot_data_x_axis_diagDU = Column(db.ARRAY(Float), nullable=False)
-    intensity_plot_data_y_axis_diagDU = Column(db.ARRAY(Float), nullable=False)
+    intensity_plot_data_x_axis_V_seg = Column(db.ARRAY(db.Float), nullable=False)
+    intensity_plot_data_y_axis_V_seg = Column(db.ARRAY(db.Float), nullable=False)
+    intensity_plot_data_x_axis_H_seg = Column(db.ARRAY(db.Float), nullable=False)
+    intensity_plot_data_y_axis_H_seg = Column(db.ARRAY(db.Float), nullable=False)
+    intensity_plot_data_x_axis_diagUD = Column(db.ARRAY(db.Float), nullable=False)
+    intensity_plot_data_y_axis_diagUD = Column(db.ARRAY(db.Float), nullable=False)
+    intensity_plot_data_x_axis_diagDU = Column(db.ARRAY(db.Float), nullable=False)
+    intensity_plot_data_y_axis_diagDU = Column(db.ARRAY(db.Float), nullable=False)
 
     # profile_stat_table 
     profile_stat_table_location = Column(db.String(128), nullable=False)
@@ -76,4 +76,4 @@ class Homogeneity(PkModel):
 
     
     # norm_intensity_data
-    norm_intensity_data = Column(db.ARRAY(Float(), dimensions=2)) 
+    norm_intensity_data = Column(db.ARRAY(db.Float, dimensions=2)) 

@@ -1,0 +1,42 @@
+{% extend "layout.html" %}
+{% block content %}
+<div class="container">
+    <h3>Cv Report</h3>
+    <hr>
+    
+    <!--hist_nbpixels_vs_grayscale-->
+    <div>
+        <h4>Histogram: Nb of pixels vs gray intensity</h4>
+        <img src="{{hist_path}}" alt="hist"> </img>
+    </div>
+
+    <!--images with marked roi-->
+    <div>
+        <h4>Images with marked roi</h4>
+        <img src="{{roi_path}}" alt="images with marked roi"> </img>
+    </div>
+
+    <!--cv_csv-->
+    <div>
+        <h4>Cv Table</h4>
+        <table>
+            <tr>
+                <th>standard deviation</th>
+                <th>average</th>
+                <th>nb pixels</th>
+                <th>cv</th>
+                <th>cv relative to min</th>
+            </tr>
+            <tr>
+                <td>{{cv_record.cv_table_sd}}</td>
+                <td>{{cv_record.cv_table_average}}</td>
+                <td>{{cv_record.cv_table_nb_pixels}}</td>
+                <td>{{cv_record.cv_table_cv_value}}</td>
+                <td>{{cv_record.cv_table_relative_to_min}}</td>
+            </tr>
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}

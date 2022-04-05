@@ -55,11 +55,11 @@ class Cv(PkModel):
     created_at = Column(db.DateTime, nullable=True, default=dt.datetime.utcnow)
 
     # hist_nbpixels_vs_grayscale
-    hist_x_0 = db.Column(db.ARRAY(Float), nullable=False)
-    hist_y_0 = db.Column(db.ARRAY(Float), nullable=False)
+    hist_x_0 = Column(db.ARRAY(db.Float), nullable=False)
+    hist_y_0 = Column(db.ARRAY(db.Float), nullable=False)
 
     # images with marked roi and label: stored as numpy arrays
-    roi_data_0 = db.Column(db.ARRAY(Float), nullable=False)
+    roi_data_0 = Column(db.ARRAY(db.Float), nullable=False)
 
     """for mutli tiff file: trial
     # hist_nbpixels_vs_grayscale
@@ -77,8 +77,8 @@ class Cv(PkModel):
     """
 
     # cv_table
-    cv_table_sd = db.Column(db.Float(), nullable=False)
-    cv_table_average = db.Column(db.Float(), nullable=False)
-    cv_table_nb_pixels = db.Column(db.Float(), nullable=False)
-    cv_table_cv_value = db.Column(db.Float(), nullable=False)
-    cv_table_relative_to_min = db.Column(db.Float(), nullable=False)
+    cv_table_sd = Column(db.Float(), nullable=False)
+    cv_table_average = Column(db.Float(), nullable=False)
+    cv_table_nb_pixels = Column(db.Float(), nullable=False)
+    cv_table_cv_value = Column(db.Float(), nullable=False)
+    cv_table_relative_to_min = Column(db.Float(), nullable=False)
