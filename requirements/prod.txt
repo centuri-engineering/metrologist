@@ -2,7 +2,7 @@
 
 # Flask
 Flask==2.1.1
-Werkzeug==2.1.0
+Werkzeug==2.1.1
 click>=7.0
 
 # Database
@@ -29,7 +29,7 @@ Flask-Static-Digest==0.2.1
 
 # Auth
 Flask-Login==0.6.0
-Flask-Bcrypt==0.7.1
+Flask-Bcrypt==1.0.1
 flask-ldap3-login
 
 # Caching
