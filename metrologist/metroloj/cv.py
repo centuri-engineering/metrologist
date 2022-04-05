@@ -426,7 +426,7 @@ def get_hist_data(img, nb_img=1):
         table of nb_pixel
     """
 
-    if nb_img=1:
+    if nb_img==1:
         # convert matrix to one vector
         ball_intensity_vec = get_segmented_image(img)
         ball_intensity_vec.flatten()
