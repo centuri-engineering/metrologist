@@ -15,6 +15,9 @@ Given a .tif file, this module will produce the following elements:
     intensities.
 
 Note: rois are defined as the central 20% of the given image.
+Note: Code tested on one or multi image .tif file (from homogeneity and
+cv samples)
+
 """
 
 import numpy as np
@@ -31,11 +34,6 @@ from skimage.color import label2rgb
 from skimage.measure import label, regionprops
 
 import common_module as cm
-
-"""
-cv report:
-Code tested on one or multi image .tif file (from homogeneity and cv samples)
-"""
 
 
 # Get roi (default central 20% of the original image) for a given 2d image
@@ -178,51 +176,7 @@ get_segmented_image(img)
 """
 
 
-# 2. Compute cv
-
-
-def get_segmented_image(img):
-    """
-    Given a 2D np.array, it replaces all the pixels with an intensity below
-    a threshold otsu value by 0 as well as artifacts connected to image border.
-
-    Parameters
-    ----------
-    img : np.array
-        Original image in a 2D format.
-
-    Returns
-    -------
-    img : np.array
-        2D np.array where only pixels with significant intensity are given
-        non null values.
-
-    """
-    # define threshold
-    thresh = threshold_otsu(img)
-    # boolean matrice: True represent the pixels of interest
-    bw = closing(img > thresh, square(3))
-    # remove artifacts connected to image border
-    cleared = clear_border(bw)
-
-    # get segmented image
-    xtot, ytot = np.shape(img)
-
-    for i in range(xtot):
-        for j in range(ytot):
-            if not cleared[i, j]:
-                img[i, j] = 0
-    return img
-
-
-"""
-# ex:
-img = cm.get_images_from_multi_tiff(path_cv)[0]
-get_segmented_image(img)
-"""
-
-
-def get_cv_table_global(tiff_data):
+def get_cv_table_global(tiff_data, output_dir=None):
     """
     For each np.arrays of the given list, it computes the Coefficient of
     Variation (cv) of the central 20% (ROI).
@@ -231,6 +185,9 @@ def get_cv_table_global(tiff_data):
     ----------
     tiff_data : np.array
         3d np.arrays
+    output_dir : str, optional
+        if specified, save the table to the output_dir.
+        the default is None.
 
     Returns
     -------
@@ -271,6 +228,8 @@ def get_cv_table_global(tiff_data):
                "cv": cv_list,
                "cv_relative_to_min": cv_normalized
                }
+    if output_dir is not None:
+        pd.DataFrame(cv_dict).to_csv(output_dir+"cv.csv")
 
     return cv_dict
 
@@ -385,17 +344,17 @@ get_marked_roi_and_label_single_img(img[0],show=True)
 # get_marked_roi_and_label_multi_img
 
 
-def get_marked_roi_and_label_multi_img(tiff_data, output_dir):
+def get_marked_roi_and_label_multi_img(tiff_data, output_dir=None):
     """
-    This function modify and save the multi tiff file into distinct png files.
+    This function show or save the multi tiff file into distinct png files.
     For each image of the input multitif file, this function:
-    - labelise by a diffrent color the pixels that are considered when
+    - labelises by a diffrent color the pixels that are considered when
     computing the cv value, i.e. having a higher intensity than the
     threshold otsu value.
-    - mark by a red rectangle the region of pixels having an intensity higher
+    - marks by a red rectangle the region of pixels having an intensity higher
     than a threshold otsu
     which are used
-    - mark by a white rectangle the roi region, i.e. the central 20% region
+    - marks by a white rectangle the roi region, i.e. the central 20% region
     of the inputed image.
 
     Parameters
@@ -409,8 +368,9 @@ def get_marked_roi_and_label_multi_img(tiff_data, output_dir):
     -------
     fig_list : list
         1D list of figures of type matplotlib.figure.Figure.
-
     """
+
+    fig_list = []
     for i in range(len(tiff_data)):
         image_temp = get_marked_roi_and_label_single_img(
             tiff_data[i],
@@ -421,17 +381,23 @@ def get_marked_roi_and_label_multi_img(tiff_data, output_dir):
         ax.imshow(image_temp)
         ax.set_axis_off()
         plt.tight_layout()
+        fig_list.append(fig)
 
-        plt.savefig(output_dir+f"{i}.roi.png",
-                    bbox_inches='tight',
-                    pad_inches=0,
-                    format="png")
+        if output_dir is not None:
+            plt.savefig(output_dir+f"{i}.roi.png",
+                        bbox_inches='tight',
+                        pad_inches=0,
+                        format="png")
+    return fig_list
+
 
 
 """
 tiff_data = cm.get_images_from_multi_tiff(path_cv)
 output_path = "/Users/Youssef/Desktop/"
-figure = get_marked_roi_and_label_multi_img(tiff_data, output_path)
+figures = get_marked_roi_and_label_multi_img(tiff_data, output_path)
+figures = get_marked_roi_and_label_multi_img(tiff_data)
+get_marked_roi_and_label_multi_img(tiff_data)[0]
 """
 
 
@@ -557,12 +523,16 @@ Generate cv report Given 1 .tif file enclosing one or more 2D images.
 """
 
 
-def get_cv_report_elements(
-        tiff_data, microscope_type, wavelength, NA, sampling_rate, pinhole
+def cv_report(
+        tiff_data,
+        microscope_type, wavelength, NA, sampling_rate, pinhole,
+        output_dir=None
         ):
     """
     Generate the different componenent of the cv report and stock them in
     a list.
+    If output_dir specified, it saves the different elements of the 
+    cv report in the specified directory.
 
     Parameters
     ----------
@@ -578,6 +548,15 @@ def get_cv_report_elements(
         In number of pixels. Ex: "1.0x1.0x1.0".
     pinhole : int or float
         In airy units.
+    output_dir : str, optional
+        if specified, all elements will be saved in the mentioned dir:
+        1.Save as .png: original images with ROIs marked on them.
+        2.Save as .csv: microscopy info dataframe.
+        3.Save as .png: histogram of the number of pixels per gray 
+        intensity value for all the images.
+        4.Save as .csv: Dataframe enclosing info about the pixels with
+        significant intensities of the segemented ROI of each
+        given np.array.
 
     Returns
     -------
@@ -592,21 +571,31 @@ def get_cv_report_elements(
     """
 
     # Get Histogram : Nbpixel VS Gray scale
-    hist_nbpixels_vs_grayscale = get_hist_nbpixel_vs_grayintensity(tiff_data)
+    hist_nbpixels_vs_grayscale = get_hist_nbpixel_vs_grayintensity(
+        tiff_data,
+        output_dir=output_dir
+        )
 
     # Get Images with Marked ROIs on them
-    get_marked_roi_and_label_multi_img(
+    img_original_marked_roi_label = get_marked_roi_and_label_multi_img(
         tiff_data,
-        output_dir=output_dir="Users/Youssef/Desktop/")
-    
+        output_dir=output_dir
+        )
 
     # Get Microscope info dataframe
     microscopy_info_table = cm.get_microscopy_info(
         microscope_type, wavelength, NA, sampling_rate, pinhole
         )
+    if output_dir is not None:
+        microscopy_info_table.to_csv(output_dir+"microscopy_info")
 
     # Get cv table
-    cv_table = pd.DataFrame(get_cv_table_global(tiff_data))
+    cv_table = get_cv_table_global(
+        tiff_data,
+        output_dir=output_dir
+        )
+
+    # return all elements
     cv_report_elements = [img_original_marked_roi_label,
                           microscopy_info_table,
                           hist_nbpixels_vs_grayscale,
@@ -618,78 +607,20 @@ def get_cv_report_elements(
 """
 # ex1:
 img = cm.get_images_from_multi_tiff(path_cv)
-cvreport_elements_1 = get_cv_report_elements(img, "Confocal", 460,
-                                             1.4, "1.0x1.0x1.0", 1)
+cvreport_elements_1 = get_cv_report_elements(
+    img, None, "Confocal", 460, 1.4, "1.0x1.0x1.0", 1
+    )
 cvreport_elements_1[0]
 cvreport_elements_1[0][0]
 cvreport_elements_1[0][1]
 cvreport_elements_1[1]
 cvreport_elements_1[2]
 cvreport_elements_1[3]
-"""
 
-
-def save_cv_report_elements(
-        tiff_path, output_dir, microscope_type, wavelength,
-        NA, sampling_rate, pinhole
-        ):
-    """
-    Save the different elements of the cv componenent in a chosen directory.
-
-    Parameters
-    ----------
-    tiff_path : str
-        .tif file path. .tif file must contain one or more 2D images or
-        a single 3D image.
-    output_dir : str
-        Output directory path.
-    microscope_type : str
-
-    wavelength : float
-        In nm.
-    NA : int or float
-        Numerical aperture.
-    sampling_rate : str
-        In number of pixels. Ex: "1.0x1.0x1.0".
-    pinhole : int or float
-        In airy units.
-
-    Returns
-    -------
-    1.Save as .png: original images with ROIs marked on them.
-    2.Save as .csv: microscopy info dataframe.
-    3.Save as .png: histogram of the number of pixels per gray intensity value
-    for all the images.
-    4.Save as .csv: Dataframe enclosing info about the pixels with significant
-    intensities of the segemented ROI of each given np.array.
-
-    """
-
-    tiff_data = cm.get_images_from_multi_tiff(tiff_path)
-
-    cv_report_elements_temp = get_cv_report_elements(
-        tiff_data, microscope_type, wavelength, NA, sampling_rate, pinhole
-        )
-
-    microscopy_info_table = cv_report_elements_temp[1]
-    hist_nbpixels_vs_grayscale = cv_report_elements_temp[2]
-    cv_table = cv_report_elements_temp[3]
-
-    get_marked_roi_and_label_multi_img(tiff_data, output_dir)
-
-    microscopy_info_table.to_csv(output_dir+"microscopy_info")
-    hist_nbpixels_vs_grayscale.savefig(
-        output_dir+"hist.png",
-        format="png",
-        bbox_inches='tight')
-    cv_table.to_csv(output_dir+"cv.csv")
-
-
-"""
-# ex1
+# ex2: save
 output_path_cv = "/Users/Youssef/Documents/IBDML/"+\
     "MetroloJ-for-python/outputs/cv_outputs/"
-save_cv_report_elements(path_cv, output_path_cv,
-                        "Confocal", 460, 1.4,
-                        "1.0x1.0x1.0", 1)
+cvreport_elements_2 = get_cv_report_elements(
+    img, output_path_cv, "Confocal", 460, 1.4, "1.0x1.0x1.0", 1
+    )
 """
