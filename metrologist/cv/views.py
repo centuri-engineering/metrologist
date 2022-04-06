@@ -9,7 +9,6 @@ Missing: make it work with a multi tiff file.
 
 from re import L
 
-from matplotlib.pyplot import hist
 from flask import Blueprint, render_template
 from flask_login import login_required
 
@@ -52,7 +51,7 @@ def cv():
     hist_x, hist_y = cv.get_hist_data(img=image, nb_img=nb_images)
     cv.get_hist_nbpixel_vs_grayintensity(image, output_dir=hist_path)
 
-    # images png with marked roi
+    # images with marked roi
     roi_data_0 = cv.get_marked_roi_and_label_single_img(image)
     cv.get_marked_roi_and_label_single_img(
         image,
