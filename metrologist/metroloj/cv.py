@@ -33,8 +33,7 @@ from skimage.draw import polygon_perimeter
 from skimage.color import label2rgb
 from skimage.measure import label, regionprops
 
-import common as cm
-
+from metrologist.metroloj import common
 
 # Get roi (default central 20% of the original image) for a given 2d image
 
@@ -206,19 +205,39 @@ def get_cv_table_global(tiff_data, output_dir=None):
     nb_pixels_list = []
     cv_list = []
 
-    for i in range(len(tiff_data)):
-        img_temp = get_segmented_image(tiff_data[i])
-        ball_intensity_vec_temp = img_temp[img_temp != 0]
+    def get_cv_table_global_single(img):
+        img_segmented = get_segmented_image(img)
+        ball_intensity_vec_temp = img_segmented[img_segmented != 0]
         # Statistics
         std_intensity_temp = np.std(ball_intensity_vec_temp)
         mean_intensity_temp = np.mean(ball_intensity_vec_temp)
         nb_pixels_temp = len(ball_intensity_vec_temp)
         cv_temp = std_intensity_temp/mean_intensity_temp
+        return std_intensity_temp, mean_intensity_temp, nb_pixels_temp, cv_temp
 
-        std_intensity_list.append(std_intensity_temp)
-        mean_intensity_list.append(mean_intensity_temp)
-        nb_pixels_list.append(nb_pixels_temp)
-        cv_list.append(cv_temp)
+    # nb_img: we assume that images from same tiff file have the same size
+    try:
+        nb_images, xdim, ydim = tiff_data.shape
+    except AttributeError and ValueError:
+        xdim, ydim = tiff_data.shape
+        nb_images = 1
+
+    if nb_images == 1:
+        std_, mean_, nb_pixels_, cv_ = get_cv_table_global_single(tiff_data)
+        # save
+        std_intensity_list.append(std_)
+        mean_intensity_list.append(mean_)
+        nb_pixels_list.append(nb_pixels_)
+        cv_list.append(cv_)
+
+    else:
+        for array_ in tiff_data:
+            std_, mean_, nb_pixels_, cv_ = get_cv_table_global_single(array_)
+            # save
+            std_intensity_list.append(std_)
+            mean_intensity_list.append(mean_)
+            nb_pixels_list.append(nb_pixels_)
+            cv_list.append(cv_)
 
     cv_normalized = np.divide(cv_list, min(cv_list))
 
@@ -236,13 +255,14 @@ def get_cv_table_global(tiff_data, output_dir=None):
 
 """
 # ex1: one image in tiff file
-img = cm.get_images_from_multi_tiff(path_cv)
-get_cv_table_global(img)
+img = get_images_from_multi_tiff(path_homo)
+pd.DataFrame(get_cv_table_global(img))
 
 # ex2: 2 images in tiff file
 img = cm.get_images_from_multi_tiff(path_cv)
-get_cv_table_global(img)
+pd.DataFrame(get_cv_table_global(img))
 """
+
 
 
 # 3. Report: Get Tiff images with ROIs marked on them.
@@ -325,7 +345,7 @@ def get_marked_roi_and_label_single_img(img, show=False, output_dir=None):
         ax.set_axis_off()
         plt.tight_layout()
 
-        output_path = output_dir + "0.roi.png"
+        output_path = output_dir
         plt.savefig(output_path,
                     bbox_inches='tight',
                     pad_inches=0,
@@ -335,10 +355,15 @@ def get_marked_roi_and_label_single_img(img, show=False, output_dir=None):
 
 
 """
-img = cm.get_images_from_multi_tiff(path_cv)
-output_path = "/Users/Youssef/Desktop/"
+img = get_images_from_multi_tiff(path_cv)
+output_path = "/Users/bottimacintosh/Desktop/roi.png"
 get_marked_roi_and_label_single_img(img[1],show=True, output_dir=output_path)
 get_marked_roi_and_label_single_img(img[0],show=True)
+
+img = get_images_from_multi_tiff(path_cv)
+for i, image in enumerate(img):
+    print(type(image))
+    get_marked_roi_and_label_single_img(image, show=True)
 """
 
 # get_marked_roi_and_label_multi_img
@@ -426,7 +451,7 @@ def get_hist_data(img, nb_img=1):
         table of nb_pixel
     """
 
-    if nb_img==1:
+    if nb_img is 1:
         # convert matrix to one vector
         ball_intensity_vec = get_segmented_image(img)
         ball_intensity_vec.flatten()
@@ -476,8 +501,8 @@ def get_hist_nbpixel_vs_grayintensity(tiff_data, output_dir=None):
 
     Parameters
     ----------
-    tiff_data : list
-        List of np.arrays.
+    tiff_data : np.array
+        2D or 3D np.array.
 
     Returns
     -------
@@ -485,16 +510,32 @@ def get_hist_nbpixel_vs_grayintensity(tiff_data, output_dir=None):
         Histogram of the number of pixels per gray intensity.
     """
 
+    # nb of images in tiff_data
+    try:
+        nb_images, xdim, ydim = tiff_data.shape
+    except ValueError or AttributeError:
+        xdim, ydim = tiff_data.shape
+        nb_images = 1
+
+    # build hist
     fig = plt.figure()
     colors = ["r", "g", "b", "c", "m", "y", "k", "w"]
 
-    roi_arrays = get_roi_default(tiff_data)[1]
-    for i in range(len(roi_arrays)):
-        hist_x, hist_y = get_hist_data(roi_arrays[i])
+    if nb_images == 1:
+        hist_x, hist_y = get_hist_data(tiff_data)
         plt.plot(
-            hist_x, hist_y, marker=".", markersize=0.2, color=colors[i],
-            label="ROI " + str(i), linewidth=0.8, figure=fig
+            hist_x, hist_y, marker=".", markersize=0.2, color=colors[0],
+            label="ROI " + str(0), linewidth=0.8, figure=fig
             )
+
+    else:
+        nb_pixel_per_img = len(get_roi_default(tiff_data)[0])
+        for i in range(nb_pixel_per_img):
+            hist_x, hist_y = get_hist_data(tiff_data[i])
+            plt.plot(
+                hist_x, hist_y, marker=".", markersize=0.2, color=colors[i],
+                label="ROI " + str(i), linewidth=0.8, figure=fig
+                )
 
     plt.title("Intensity histogram", figure=fig)
     plt.xlim((0, 256))
@@ -504,22 +545,22 @@ def get_hist_nbpixel_vs_grayintensity(tiff_data, output_dir=None):
     plt.title("Intensity histogram", figure=fig)
 
     if output_dir is not None:
-        plt.savefig(output_dir+"hist.png",
+        plt.savefig(output_dir,
                     bbox_inches='tight',
                     pad_inches=0,
-                    format="png")   
+                    format="png")
 
     return fig
 
 
 """
-# ex:
+# ex one image:
+img = get_images_from_multi_tiff(path_homo)
+get_hist_nbpixel_vs_grayintensity(img)
+
+# ex multi images:
 img = cm.get_images_from_multi_tiff(path_cv)
 get_hist_nbpixel_vs_grayintensity(img)
-"""
-
-"""
-Generate cv report Given 1 .tif file enclosing one or more 2D images.
 """
 
 

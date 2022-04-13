@@ -37,12 +37,6 @@ class Cv(PkModel):
     """
     """
 
-    # load input image
-    images, nb_images = common.get_images_from_multi_tiff(
-        path="/examples/cv_comparatif.tif",
-        zdim=True
-        )
-
     __tablename__ = "cv"
 
    # user_id
@@ -55,11 +49,11 @@ class Cv(PkModel):
     created_at = Column(db.DateTime, nullable=True, default=dt.datetime.utcnow)
 
     # hist_nbpixels_vs_grayscale
-    hist_x_0 = Column(db.ARRAY(db.Float), nullable=False)
-    hist_y_0 = Column(db.ARRAY(db.Float), nullable=False)
+    hist_x = Column(db.ARRAY(db.Float), nullable=False)
+    hist_y = Column(db.ARRAY(db.Float), nullable=False)
 
     # images with marked roi and label: stored as numpy arrays
-    roi_data_0 = Column(db.ARRAY(db.Float), nullable=False)
+    roi_data = Column(db.ARRAY(db.Float), nullable=False)
 
     """for mutli tiff file: trial
     # hist_nbpixels_vs_grayscale

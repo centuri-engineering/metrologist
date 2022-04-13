@@ -7,6 +7,8 @@ templates/homogeneities/homogeneity.html
 from flask import Blueprint, render_template
 from flask_login import login_required
 
+from pathlib import Path
+
 from metrologist.field_illum.models import Homogeneity
 # from metrologist.upload_image.forms import UploadImage
 
@@ -17,7 +19,8 @@ blueprint = Blueprint(
     "field_illum", __name__, url_prefix="/field_illum", static_folder="../static"
 )
 
-
+PARENT1 = Path(__file__).resolve().parents[1]
+PARENT2 = Path(__file__).resolve().parents[2]
 @blueprint.route("/")
 
 def field_illum():
@@ -29,31 +32,35 @@ def field_illum():
 
     # load input image
     image = common.get_images_from_multi_tiff(
-        path="/examples/homogeneity_ex1.tif",
-        single=True
+        path=str(PARENT1) + "/field_illum/examples/homogeneity_ex1.tif",
         )
  
     # temp path for plots
-    graph_path_temp = TemporaryDirectory()
+
+    # graph_path_temp = TemporaryDirectory()
+    # intensity_plot_path = graph_path_temp.name + "/" + "intensity_plot.png"
+    # norm_intensity_profile_path = graph_path_temp.name + "/" + "norm_intensity_profile.png"
+
+    graph_path_temp = str(PARENT2) +  "/assets/img/"
     intensity_plot_path = graph_path_temp + "intensity_plot.png"
     norm_intensity_profile_path = graph_path_temp + "norm_intensity_profile.png"
 
     # get homogeneity report element for input image
     # plots will be saved into graph_path_temp (arg: save_path)
  
-    max_region_info  = homo.get_max_intensity_region(image)
+    max_region_info  = homo.get_max_intensity_region_table(image)
 
     profile_stat_table = homo.get_profile_statistics_table(image)
 
     _ , intensity_plot_data = homo.get_intensity_plot(
         image,
-        save_path=graph_path_temp
+        save_path=intensity_plot_path
         )
 
     norm_intensity_matrix = homo.get_norm_intensity_matrix(image)
     homo.get_norm_intensity_profile(
         image,
-        save_path=graph_path_temp
+        save_path=norm_intensity_profile_path
         )
 
     # define Homogeneity object attributes 

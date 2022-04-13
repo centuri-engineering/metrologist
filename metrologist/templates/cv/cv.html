@@ -1,4 +1,4 @@
-{% extend "layout.html" %}
+{% extends "layout.html" %}
 {% block content %}
 <div class="container">
     <h3>Cv Report</h3>
@@ -13,7 +13,9 @@
     <!--images with marked roi-->
     <div>
         <h4>Images with marked roi</h4>
-        <img src="{{roi_path}}" alt="images with marked roi"> </img>
+        {% for i in range(roi_path_list|length) %}
+            <img src="{{roi_path_list[i]}}" alt="images with marked roi"> </img>
+        {% endfor %}
     </div>
 
     <!--cv_csv-->
@@ -27,13 +29,16 @@
                 <th>cv</th>
                 <th>cv relative to min</th>
             </tr>
-            <tr>
-                <td>{{cv_record.cv_table_sd}}</td>
-                <td>{{cv_record.cv_table_average}}</td>
-                <td>{{cv_record.cv_table_nb_pixels}}</td>
-                <td>{{cv_record.cv_table_cv_value}}</td>
-                <td>{{cv_record.cv_table_relative_to_min}}</td>
-            </tr>
+            {% for cv_record in cv_records %}
+                <tr>
+                    <td>{{cv_record.cv_table_sd[loop.index0]}}</td>
+                    <td>{{cv_record.cv_table_average[loop.index0]}}</td>
+                    <td>{{cv_record.cv_table_nb_pixels[loop.index0]}}</td>
+                    <td>{{cv_record.cv_table_nb_pixels[loop.index0]}}</td>
+                    <td>{{cv_record.cv_table_cv_value[loop.index0]}}</td>
+                    <td>{{cv_record.cv_table_relative_to_min[loop.index0]}}</td>
+                </tr>
+            {% endfor %}
         </table>
     </div>
 

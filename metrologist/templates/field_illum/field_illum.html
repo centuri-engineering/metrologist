@@ -1,4 +1,4 @@
-{% extend "layout.html" %}
+{% extends "layout.html" %}
 {% block content %}
 <div class="container">
     <h3>Homogeneity Report</h3>
@@ -30,7 +30,7 @@
                 <th>intensity</th>
                 <th>intensity relative to max</th>
             </tr>
-            {% for row_nb in range(len(homogeneity_record.profile_stat_table_location)) %}
+            {% for row_nb in range(homogeneity_record.profile_stat_table_location|length) %}
                 <tr>
                     <td>{{homogeneity_record.profile_stat_table_location[row_nb]}}</td>
                     <td>{{homogeneity_record.profile_stat_table_intensity[row_nb]}}</td>
@@ -44,7 +44,7 @@
     <!--intensity_plot-->
     <div>
         <h4>Intensity Plot</h4>
-        <img src="{{intensity_plot_path}}" alt="intensity plot"> </img>
+        <img src="{{ intensity_plot_path }}"> </img>
     </div>
 
     <!--norm_intensity_profile-->

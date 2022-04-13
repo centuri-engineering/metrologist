@@ -22,7 +22,7 @@ import pandas as pd
 from skimage import draw
 from skimage.measure import regionprops
 
-import common_module as cm  # local module
+from .common import get_images_from_multi_tiff
 
 
 """
@@ -126,7 +126,8 @@ def get_norm_intensity_profile(img, save_path=""):
     img : np.arrray
         image on a 2d np.array format.
     save_path : str, optional
-        directory path to save the generated figure. The default is "".
+        path to save the generated figure including filename.
+        The default is "".
 
     Returns
     -------
@@ -148,7 +149,7 @@ def get_norm_intensity_profile(img, save_path=""):
     plt.colorbar()
     plt.title("normalized intensity profile", figure=fig)
     if save_path:
-        plt.savefig(str(save_path)+"norm_intensity_profile.png",
+        plt.savefig(str(save_path),
                     bbox_inches='tight')
 
     return fig
@@ -247,7 +248,8 @@ def get_intensity_plot(img, save_path=""):
     img : np.array
         image on a 2d np.array format.
     save_path : str, optional
-        directory path to save the generated figure. The default is "".
+        path to save the generated figure inluding file name.
+        The default is "".
 
     Returns
     -------
@@ -308,7 +310,7 @@ def get_intensity_plot(img, save_path=""):
     plt.legend()
 
     if save_path:
-        plt.savefig(str(save_path)+"intensity_plot.png",
+        plt.savefig(str(save_path),
                     bbox_inches='tight')
 
     return fig, fig_data
