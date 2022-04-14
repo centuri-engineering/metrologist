@@ -13,11 +13,13 @@
                 <th>center of mass</th>
                 <th>max intensity</th>
             </tr>
-            <tr>
-                <td>{{homogeneity_record.max_region_table_nb_pixels}}</td>
-                <td>{{homogeneity_record.max_region_table_center_of_mass}}</td>
-                <td>{{homogeneity_record.max_region_table_max_intensity}}</td>
-            </tr>
+            {% for row_nb in range(homogeneity_record.max_region_table_nb_pixels|length) %}
+                <tr>
+                    <td>{{homogeneity_record.max_region_table_nb_pixels[loop.index0]}}</td>
+                    <td>{{homogeneity_record.max_region_table_center_of_mass[loop.index0]}}</td>
+                    <td>{{homogeneity_record.max_region_table_max_intensity[loop.index0]}}</td>
+                </tr>
+            {% endfor %}
         </table>
     </div>
 

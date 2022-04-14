@@ -3,7 +3,7 @@
 cv report elements to include inside
 templates/cv/cv.html
 
-Rk: only works on single tiff file. 
+Rk: only works on single tiff file.
 Missing: make it work with a multi tiff file.
 """
 
@@ -29,7 +29,9 @@ blueprint = Blueprint(
 PARENT1 = Path(__file__).resolve().parents[1]
 PARENT2 = Path(__file__).resolve().parents[2]
 
+
 @blueprint.route("/")
+
 
 def cv():
     """
@@ -42,7 +44,7 @@ def cv():
     single_img_tif = "/cv/examples/homogeneity_ex1.tif"
     multi_img_path = "/cv/examples/cv_comparatif.tif"
     image, nb_images = common.get_images_from_multi_tiff(
-        path=str(PARENT1) + multi_img_path,
+        path=str(PARENT1) + single_img_tif,
         nb_img=True
     )
 
@@ -51,21 +53,21 @@ def cv():
 
     # get homogeneity report element for input image
     # plots will be saved into graph_path_temp (arg: save_path)
-    cv_records=[]
+    cv_records = []
     roi_path_list = []
 
     if nb_images == 1:
-        # hist_nbpixels_vs_grayscale: one hist per tif file 
-        hist_x, hist_y = cvm.get_hist_data(img=image)  #nb_img = ..
+        # hist_nbpixels_vs_grayscale: one hist per tif file.
+        hist_x, hist_y = cvm.get_hist_data(img=image)
         hist_path = graph_path_temp + "hist.png"
-        cvm.get_hist_nbpixel_vs_grayintensity(image, output_dir=hist_path)
+        cvm.get_hist_nbpixel_vs_grayintensity(image, output_path=hist_path)
 
         # images with marked roi: save to database and web display
         roi_data = cvm.get_marked_roi_and_label_single_img(image)
         roi_path = graph_path_temp + "0.roi.png"
         cvm.get_marked_roi_and_label_single_img(
             image,
-            output_dir=roi_path
+            output_path=roi_path
             )
         roi_path_list.append(roi_path)
 
@@ -74,14 +76,14 @@ def cv():
 
         # define Cv object attributes
         cv_record = Cv(
-            hist_x = hist_x,
-            hist_y = hist_y,
-            roi_data = roi_data,
-            cv_table_sd = cv_csv["sd"],
-            cv_table_average = cv_csv["average"],
-            cv_table_nb_pixels = cv_csv["nb_pixels"],
-            cv_table_cv_value = cv_csv["cv"],
-            cv_table_relative_to_min = cv_csv["cv_relative_to_min"]
+            hist_x=hist_x,
+            hist_y=hist_y,
+            roi_data=roi_data,
+            cv_table_sd=cv_csv["sd"],
+            cv_table_average=cv_csv["average"],
+            cv_table_nb_pixels=cv_csv["nb_pixels"],
+            cv_table_cv_value=cv_csv["cv"],
+            cv_table_relative_to_min=cv_csv["cv_relative_to_min"]
         )
         cv_records.append(cv_record)
 
@@ -89,7 +91,7 @@ def cv():
         # global elements
         # hist:
         hist_path = graph_path_temp + "hist.png"
-        cvm.get_hist_nbpixel_vs_grayintensity(image, output_dir=hist_path)
+        cvm.get_hist_nbpixel_vs_grayintensity(image, output_path=hist_path)
         # cv_csv
         cv_csv = cvm.get_cv_table_global(image)
         # img specific elements
@@ -101,27 +103,27 @@ def cv():
             roi_path_temp = graph_path_temp + f"{i}.roi.png"
             cvm.get_marked_roi_and_label_single_img(
                 img,
-                output_dir=roi_path_temp
+                output_path=roi_path_temp
                 )
             roi_path_list.append(roi_path_temp)
             # how to load multi images from folder ? have diffee
 
             cv_record = Cv(
-                    hist_x = hist_x_temp,
-                    hist_y = hist_y_temp,
-                    roi_data = roi_data_temp,
-                    cv_table_sd = cv_csv["sd"],
-                    cv_table_average = cv_csv["average"],
-                    cv_table_nb_pixels = cv_csv["nb_pixels"],
-                    cv_table_cv_value = cv_csv["cv"],
-                    cv_table_relative_to_min = cv_csv["cv_relative_to_min"]
+                    hist_x=hist_x_temp,
+                    hist_y=hist_y_temp,
+                    roi_data=roi_data_temp,
+                    cv_table_sd=cv_csv["sd"],
+                    cv_table_average=cv_csv["average"],
+                    cv_table_nb_pixels=cv_csv["nb_pixels"],
+                    cv_table_cv_value=cv_csv["cv"],
+                    cv_table_relative_to_min=cv_csv["cv_relative_to_min"]
                 )
             cv_records.append(cv_record)
 
     return render_template(
         "cv/cv.html",
-        hist_path = hist_path,
-        cv_records = cv_records,
-        roi_path_list = roi_path_list,
-        cv_csv = cv_csv
+        hist_path=hist_path,
+        cv_records=cv_records,
+        roi_path_list=roi_path_list,
+        cv_csv=cv_csv
     )

@@ -33,7 +33,7 @@ from skimage.draw import polygon_perimeter
 from skimage.color import label2rgb
 from skimage.measure import label, regionprops
 
-from metrologist.metroloj import common
+from metrologist.metroloj import common as cm
 
 # Get roi (default central 20% of the original image) for a given 2d image
 
@@ -264,11 +264,10 @@ pd.DataFrame(get_cv_table_global(img))
 """
 
 
-
 # 3. Report: Get Tiff images with ROIs marked on them.
 
 
-def get_marked_roi_and_label_single_img(img, show=False, output_dir=None):
+def get_marked_roi_and_label_single_img(img, show=False, output_path=None):
     """
     This function do the following on a single np.array (image):
     - labelise by a diffrent color the pixels that are considered when
@@ -286,8 +285,8 @@ def get_marked_roi_and_label_single_img(img, show=False, output_dir=None):
         2d np.array
     show : bool, optional
         If True, the resulting array (image) is shown. The default is False.
-    output_dir : str, optional.
-        directory path to save the image.
+    output_path : str, optional.
+        path to save the image, includes filename and extension (.png).
 
     Returns
     -------
@@ -338,14 +337,13 @@ def get_marked_roi_and_label_single_img(img, show=False, output_dir=None):
         plt.show()
 
     # save
-    if output_dir is not None:
+    if output_path is not None:
         fig, ax = plt.subplots(figsize=(10, 6))
         ax.imshow(image_label_overlay)
 
         ax.set_axis_off()
         plt.tight_layout()
 
-        output_path = output_dir
         plt.savefig(output_path,
                     bbox_inches='tight',
                     pad_inches=0,
@@ -357,7 +355,7 @@ def get_marked_roi_and_label_single_img(img, show=False, output_dir=None):
 """
 img = get_images_from_multi_tiff(path_cv)
 output_path = "/Users/bottimacintosh/Desktop/roi.png"
-get_marked_roi_and_label_single_img(img[1],show=True, output_dir=output_path)
+get_marked_roi_and_label_single_img(img[1],show=True, output_path)
 get_marked_roi_and_label_single_img(img[0],show=True)
 
 img = get_images_from_multi_tiff(path_cv)
@@ -409,18 +407,20 @@ def get_marked_roi_and_label_multi_img(tiff_data, output_dir=None):
         fig_list.append(fig)
 
         if output_dir is not None:
-            plt.savefig(output_dir+f"{i}.roi.png",
-                        bbox_inches='tight',
-                        pad_inches=0,
-                        format="png")
-    return fig_list
+            plt.savefig(
+                output_dir+f"{i}.roi.png",
+                bbox_inches='tight',
+                pad_inches=0,
+                format="png"
+                )
 
+    return fig_list
 
 
 """
 tiff_data = cm.get_images_from_multi_tiff(path_cv)
-output_path = "/Users/Youssef/Desktop/"
-figures = get_marked_roi_and_label_multi_img(tiff_data, output_path)
+output_dir = "/Users/Youssef/Desktop/"
+figures = get_marked_roi_and_label_multi_img(tiff_data, output_dir)
 figures = get_marked_roi_and_label_multi_img(tiff_data)
 get_marked_roi_and_label_multi_img(tiff_data)[0]
 """
@@ -436,7 +436,7 @@ def get_hist_data(img, nb_img=1):
     Parameters
     ----------
     img : np.array
-        Original 2D image.
+        original 2D image.
     nb_img : int
         number of images in a multitiff file.
         the default is 1.
@@ -451,7 +451,7 @@ def get_hist_data(img, nb_img=1):
         table of nb_pixel
     """
 
-    if nb_img is 1:
+    if nb_img == 1:
         # convert matrix to one vector
         ball_intensity_vec = get_segmented_image(img)
         ball_intensity_vec.flatten()
@@ -465,8 +465,8 @@ def get_hist_data(img, nb_img=1):
         return intensity_value, nb_pixel
 
     else:
-        intensity_value_tab = np.zeros(shape=(255,nb_img))
-        nb_pixel_tab = np.zeros(shape=(255,nb_img))
+        intensity_value_tab = np.zeros(shape=(255, nb_img))
+        nb_pixel_tab = np.zeros(shape=(255, nb_img))
         for i in range(nb_img):
             # convert matrix to one vector
             ball_intensity_vec = get_segmented_image(img[i])
@@ -478,10 +478,10 @@ def get_hist_data(img, nb_img=1):
             intensity_value, nb_pixel = np.unique(
                 ball_intensity_vec,
                 return_counts=True)
-            
+
             # store into a numpy array
-            intensity_value_tab[:,i] = intensity_value
-            nb_pixel_tab[:,i] = nb_pixel
+            intensity_value_tab[:, i] = intensity_value
+            nb_pixel_tab[:, i] = nb_pixel
         return intensity_value_tab, nb_pixel_tab
 
 
@@ -494,7 +494,7 @@ get_hist_data(img, nb_img=2)
 """
 
 
-def get_hist_nbpixel_vs_grayintensity(tiff_data, output_dir=None):
+def get_hist_nbpixel_vs_grayintensity(tiff_data, output_path=None):
     """
     For a given list of images in np.array format, return a histogram
     of the number of pixels per gray intensity of each of the given arrays.
@@ -503,6 +503,8 @@ def get_hist_nbpixel_vs_grayintensity(tiff_data, output_dir=None):
     ----------
     tiff_data : np.array
         2D or 3D np.array.
+    output_path : str
+        path including file name and suffixe.
 
     Returns
     -------
@@ -544,8 +546,8 @@ def get_hist_nbpixel_vs_grayintensity(tiff_data, output_dir=None):
     plt.legend()
     plt.title("Intensity histogram", figure=fig)
 
-    if output_dir is not None:
-        plt.savefig(output_dir,
+    if output_path is not None:
+        plt.savefig(output_path,
                     bbox_inches='tight',
                     pad_inches=0,
                     format="png")
@@ -555,7 +557,7 @@ def get_hist_nbpixel_vs_grayintensity(tiff_data, output_dir=None):
 
 """
 # ex one image:
-img = get_images_from_multi_tiff(path_homo)
+img = cm.get_images_from_multi_tiff(path_homo)
 get_hist_nbpixel_vs_grayintensity(img)
 
 # ex multi images:
@@ -572,7 +574,7 @@ def cv_report(
     """
     Generate the different componenent of the cv report and stock them in
     a list.
-    If output_dir specified, it saves the different elements of the 
+    If output_dir specified, it saves the different elements of the
     cv report in the specified directory.
 
     Parameters
@@ -593,7 +595,7 @@ def cv_report(
         if specified, all elements will be saved in the mentioned dir:
         1.Save as .png: original images with ROIs marked on them.
         2.Save as .csv: microscopy info dataframe.
-        3.Save as .png: histogram of the number of pixels per gray 
+        3.Save as .png: histogram of the number of pixels per gray
         intensity value for all the images.
         4.Save as .csv: Dataframe enclosing info about the pixels with
         significant intensities of the segemented ROI of each
@@ -612,9 +614,10 @@ def cv_report(
     """
 
     # Get Histogram : Nbpixel VS Gray scale
+    hist_path = output_dir + "hist.png" if output_dir is not None else None
     hist_nbpixels_vs_grayscale = get_hist_nbpixel_vs_grayintensity(
         tiff_data,
-        output_dir=output_dir
+        output_path=hist_path
         )
 
     # Get Images with Marked ROIs on them
@@ -649,7 +652,7 @@ def cv_report(
 # ex1:
 img = cm.get_images_from_multi_tiff(path_cv)
 cvreport_elements_1 = get_cv_report_elements(
-    img, None, "Confocal", 460, 1.4, "1.0x1.0x1.0", 1
+    img, "Confocal", 460, 1.4, "1.0x1.0x1.0", 1
     )
 cvreport_elements_1[0]
 cvreport_elements_1[0][0]
