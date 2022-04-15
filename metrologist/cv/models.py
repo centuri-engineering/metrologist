@@ -18,7 +18,6 @@ from metrologist.database import (
 
 log = logging.getLogger(__name__)
 
-from metrologist.metroloj import common, cv
 
 """
 sqlalchemy() imported as db (db = SQLAlchemy())

@@ -53,3 +53,4 @@ pandas==1.4.2
 matplotlib==3.5.1
 Pillow==8.0.1
 scikit-image==0.19.2
+metroloj==0.1
