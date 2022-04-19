@@ -17,8 +17,11 @@ from pathlib import Path
 from metrologist.cv.models import Cv
 # from metrologist.upload_image.forms import UploadImage
 
-from metrologist.metroloj import common
-from metrologist.metroloj import cv as cvm
+# from metrologist.metroloj import common
+# from metrologist.metroloj import cv as cvm
+# if using metroloj pip package
+from metroloj import common
+from metroloj import cv as cvm
 
 from tempfile import TemporaryDirectory
 
@@ -44,7 +47,7 @@ def cv():
     single_img_tif = "/cv/examples/homogeneity_ex1.tif"
     multi_img_path = "/cv/examples/cv_comparatif.tif"
     image, nb_images = common.get_images_from_multi_tiff(
-        path=str(PARENT1) + single_img_tif,
+        path=str(PARENT1) + multi_img_path,
         nb_img=True
     )
 

@@ -9,10 +9,13 @@ from flask_login import login_required
 
 from pathlib import Path
 
-from metrologist.field_illum.models import Homogeneity
 # from metrologist.upload_image.forms import UploadImage
+from metrologist.field_illum.models import Homogeneity
 
-from metrologist.metroloj import common, homo
+# from metrologist.metroloj import common, homo
+# if using metroloj pip package
+from metroloj import common, homo
+
 from tempfile import TemporaryDirectory
 
 blueprint = Blueprint(
