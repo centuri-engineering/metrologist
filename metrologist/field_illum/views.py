@@ -48,6 +48,10 @@ def field_illum():
     intensity_plot_path = graph_path_temp + "intensity_plot.png"
     norm_intensity_profile_path = graph_path_temp + "norm_intensity_profile.png"
 
+    build_path = "build/img/"
+    intensity_plot_build_path = build_path + "intensity_plot.png"
+    norm_intensity_profile_build_path = build_path + "norm_intensity_profile.png"
+
     # get homogeneity report element for input image
     # plots will be saved into graph_path_temp (arg: save_path)
  
@@ -89,6 +93,6 @@ def field_illum():
     return render_template(
         "field_illum/field_illum.html",
         homogeneity_record=homogeneity_record,
-        intensity_plot_path=intensity_plot_path,
-        norm_intensity_profile_path=norm_intensity_profile_path
+        intensity_plot_build_path=intensity_plot_build_path,
+        norm_intensity_profile_build_path=norm_intensity_profile_build_path
         )

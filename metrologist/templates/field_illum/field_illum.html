@@ -46,13 +46,13 @@
     <!--intensity_plot-->
     <div>
         <h4>Intensity Plot</h4>
-        <img src="{{ intensity_plot_path }}"> </img>
+        <img src="{{static_url_for('static', filename=intensity_plot_build_path)}}"> </img>
     </div>
 
     <!--norm_intensity_profile-->
     <div>
         <h4>Normalized Intensity Profile</h4>
-        <img src="{{norm_intensity_profile_path}}" alt="normalized intensity profile"> </img>
+        <img src="{{static_url_for('static', filename=norm_intensity_profile_build_path)}}" alt="normalized intensity profile"> </img>
     </div>
 
 </div>

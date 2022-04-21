@@ -7,14 +7,14 @@
     <!--hist_nbpixels_vs_grayscale-->
     <div>
         <h4>Histogram: Nb of pixels vs gray intensity</h4>
-        <img src="{{hist_path}}" alt="hist"> </img>
+        <img src="{{static_url_for('static', filename=hist_path)}}" alt="hist"> </img>
     </div>
 
     <!--images with marked roi-->
     <div>
         <h4>Images with marked roi</h4>
         {% for i in range(roi_path_list|length) %}
-            <img src="{{roi_path_list[i]}}" alt="images with marked roi"> </img>
+            <img src="{{static_url_for('static', filename=roi_path_list[i])}}" alt="images with marked roi"> </img>
         {% endfor %}
     </div>
 
