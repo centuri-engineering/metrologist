@@ -32,7 +32,6 @@ textarea {
   width: 180px;
 }
 
-
 .form-register {
   width: 50%;
 }
@@ -83,4 +82,65 @@ footer .footer-nav {
   float: right;
   margin-right: 25px;
   list-style: none;
+}
+
+/* metroloJ reports style 
+=========================*/
+.content {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+
+/* report title */
+h3 {
+  font-family: Arial, Helvetica, sans-serif;
+  text-align: center;
+  font-size: 50px;
+  color: #000000;
+  font-weight: 400;
+  font-variant: normal;
+}
+
+/* report element title */
+h4 {
+  font-family: "Times New Roman", Times, serif;
+  text-align: left;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 20px;
+  color: #000000;
+  font-weight: bold;
+  font-variant: normal;
+}
+
+/* tables */
+table, th, td{
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+table{
+  background-color:#EDEDED;
+  border-collapse: collapse;
+  width: 100%;
+  margin: auto;
+}
+
+th, td{
+  padding: 10px;
+}
+
+th {
+  background-color: #002B80;
+  color: white;
+  font-weight: bold;
+}
+
+/* plots and images */
+img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 70%;
+  padding: 2px;
 }

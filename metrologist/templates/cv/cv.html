@@ -1,17 +1,16 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="container">
-    <h3>Cv Report</h3>
-    <hr>
-    
+    <h3>CV Report</h3>
+
     <!--hist_nbpixels_vs_grayscale-->
-    <div>
+    <div class="content">
         <h4>Histogram: Nb of pixels vs gray intensity</h4>
         <img src="{{static_url_for('static', filename=hist_path)}}" alt="hist"> </img>
     </div>
 
     <!--images with marked roi-->
-    <div>
+    <div class="content">
         <h4>Images with marked roi</h4>
         {% for i in range(roi_path_list|length) %}
             <img src="{{static_url_for('static', filename=roi_path_list[i])}}" alt="images with marked roi"> </img>
@@ -19,7 +18,7 @@
     </div>
 
     <!--cv_csv-->
-    <div>
+    <div class="content">
         <h4>Cv Table</h4>
         <table>
             <tr>
@@ -33,7 +32,6 @@
                 <tr>
                     <td>{{cv_record.cv_table_sd[loop.index0]}}</td>
                     <td>{{cv_record.cv_table_average[loop.index0]}}</td>
-                    <td>{{cv_record.cv_table_nb_pixels[loop.index0]}}</td>
                     <td>{{cv_record.cv_table_nb_pixels[loop.index0]}}</td>
                     <td>{{cv_record.cv_table_cv_value[loop.index0]}}</td>
                     <td>{{cv_record.cv_table_relative_to_min[loop.index0]}}</td>

@@ -1,11 +1,10 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="container">
+<div>
     <h3>Homogeneity Report</h3>
-    <hr>
 
     <!--max_region_table-->
-    <div>
+    <div class="content">
         <h4>Maximum intensity region table</h4>
         <table>
             <tr>
@@ -24,7 +23,7 @@
     </div>
 
     <!--profile_state_table-->
-    <div>
+    <div class="content">
         <h4>Profile Statistics Table</h4>
         <table>
             <tr>
@@ -44,13 +43,13 @@
     </div>
     
     <!--intensity_plot-->
-    <div>
+    <div class="content">
         <h4>Intensity Plot</h4>
         <img src="{{static_url_for('static', filename=intensity_plot_build_path)}}"> </img>
     </div>
 
     <!--norm_intensity_profile-->
-    <div>
+    <div class="content">
         <h4>Normalized Intensity Profile</h4>
         <img src="{{static_url_for('static', filename=norm_intensity_profile_build_path)}}" alt="normalized intensity profile"> </img>
     </div>
