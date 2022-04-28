@@ -1,59 +1,109 @@
 {% extends "layout.html" %}
 {% block content %}
-<div>
-    <h3>Homogeneity Report</h3>
 
-    <!--max_region_table-->
-    <div class="content">
-        <h4>Maximum intensity region table</h4>
-        <table>
-            <tr>
-                <th>nb pixels</th>
-                <th>center of mass</th>
-                <th>max intensity</th>
-            </tr>
-            {% for row_nb in range(homogeneity_record.max_region_table_nb_pixels|length) %}
-                <tr>
-                    <td>{{homogeneity_record.max_region_table_nb_pixels[loop.index0]}}</td>
-                    <td>{{homogeneity_record.max_region_table_center_of_mass[loop.index0]}}</td>
-                    <td>{{homogeneity_record.max_region_table_max_intensity[loop.index0]}}</td>
-                </tr>
-            {% endfor %}
-        </table>
-    </div>
+<h3 class="report_title"> Homogeneity Report </h3>
+<div class="container mt-3">
+    <div id="accordion">
 
-    <!--profile_state_table-->
-    <div class="content">
-        <h4>Profile Statistics Table</h4>
-        <table>
-            <tr>
-                <th>location</th>
-                <th>intensity</th>
-                <th>intensity relative to max</th>
-            </tr>
-            {% for row_nb in range(homogeneity_record.profile_stat_table_location|length) %}
-                <tr>
-                    <td>{{homogeneity_record.profile_stat_table_location[row_nb]}}</td>
-                    <td>{{homogeneity_record.profile_stat_table_intensity[row_nb]}}</td>
-                    <td>{{homogeneity_record.profile_stat_table_intensity_relative_to_max[row_nb]}}</td>
-                </tr>
-            {% endfor %}
-            </tr>
-        </table>
-    </div>
-    
-    <!--intensity_plot-->
-    <div class="content">
-        <h4>Intensity Plot</h4>
-        <img src="{{static_url_for('static', filename=intensity_plot_build_path)}}"> </img>
-    </div>
+        <div class="card">
+            <div class="card-header">
+                <a class="btn" data-bs-toggle="collapse" href="#collapseOne">
+                    Maximum Intensity Region Table
+                </a>
+            </div>
+            <div id="collapseOne" class="collapse show" data-bs-parent="#accordion">
+                <div class="card-body">
+                    <div class="content">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col">nb pixels</th>
+                                    <th scope="col">center of mass</th>
+                                    <th scope="col">max intensity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row_nb in range(homogeneity_record.max_region_table_nb_pixels|length) %}
+                                <tr>
+                                    <td>{{homogeneity_record.max_region_table_nb_pixels[loop.index0]}}</td>
+                                    <td>{{homogeneity_record.max_region_table_center_of_mass[loop.index0]}}</td>
+                                    <td>{{homogeneity_record.max_region_table_max_intensity[loop.index0]}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>        
+                </div>
+            </div>
+        </div>
 
-    <!--norm_intensity_profile-->
-    <div class="content">
-        <h4>Normalized Intensity Profile</h4>
-        <img src="{{static_url_for('static', filename=norm_intensity_profile_build_path)}}" alt="normalized intensity profile"> </img>
-    </div>
+        <div class="card">
+            <div class="card-header">
+                <a class="collapsed btn" data-bs-toggle="collapse" href="#collapseTwo">
+                    Profile Statistics Table
+                </a>
+            </div>
+            <div id="collapseTwo" class="collapse" data-bs-parent="#accordion">
+                <div class="card-body">
+                    <div class="content">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>location</th>
+                                    <th>intensity</th>
+                                    <th>intensity relative to max</th>
+                                </tr>
+                            </thead>
+                            <tbody>
 
+                                {% for row_nb in range(homogeneity_record.profile_stat_table_location|length) %}
+                                <tr>
+                                    <td>{{homogeneity_record.profile_stat_table_location[row_nb]}}</td>
+                                    <td>{{homogeneity_record.profile_stat_table_intensity[row_nb]}}</td>
+                                    <td>{{homogeneity_record.profile_stat_table_intensity_relative_to_max[row_nb]}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <a class="collapsed btn" data-bs-toggle="collapse" href="#collapseThree">
+                    Intensity Plot          
+                </a>
+            </div>
+            <div id="collapseThree" class="collapse" data-bs-parent="#accordion">
+                <div class="card-body">
+                    <div class="content">
+                        <img src="{{static_url_for('static', filename=intensity_plot_build_path)}}" id="report_img"> </img>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <a class="collapsed btn" data-bs-toggle="collapse" href="#collapseFour">
+                    Normalized Intensity Profile  
+                </a>
+            </div>
+            <div id="collapseFour" class="collapse" data-bs-parent="#accordion">
+                <div class="card-body">
+                    <div class="content">
+                        <img src="{{static_url_for('static', filename=norm_intensity_profile_build_path)}}" alt="normalized intensity profile" id="report_img"> </img>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+  
+  
+
 
 {% endblock %}

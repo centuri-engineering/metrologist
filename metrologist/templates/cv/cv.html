@@ -1,43 +1,83 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="container">
-    <h3>CV Report</h3>
+<h3 class="report_title"> CV Report </h3>
+<div class="container mt-3">
 
-    <!--hist_nbpixels_vs_grayscale-->
-    <div class="content">
-        <h4>Histogram: Nb of pixels vs gray intensity</h4>
-        <img src="{{static_url_for('static', filename=hist_path)}}" alt="hist"> </img>
-    </div>
+    <div class="container mt-3">
+        <div id="accordion">
 
-    <!--images with marked roi-->
-    <div class="content">
-        <h4>Images with marked roi</h4>
-        {% for i in range(roi_path_list|length) %}
-            <img src="{{static_url_for('static', filename=roi_path_list[i])}}" alt="images with marked roi"> </img>
-        {% endfor %}
-    </div>
+            <div class="card">
+                <div class="card-header">
+                    <a class="btn" data-bs-toggle="collapse" href="#collapseOne">
+                        CV Table
+                    </a>
+                </div>
+                <div id="collapseOne" class="collapse show" data-bs-parent="#accordion">
+                    <div class="card-body">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>standard deviation</th>
+                                    <th>average</th>
+                                    <th>nb pixels</th>
+                                    <th>cv</th>
+                                    <th>cv relative to min</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                
+                                {% for cv_record in cv_records %}
+                                <tr>
+                                    <td>{{cv_record.cv_table_sd[loop.index0]}}</td>
+                                    <td>{{cv_record.cv_table_average[loop.index0]}}</td>
+                                    <td>{{cv_record.cv_table_nb_pixels[loop.index0]}}</td>
+                                    <td>{{cv_record.cv_table_cv_value[loop.index0]}}</td>
+                                    <td>{{cv_record.cv_table_relative_to_min[loop.index0]}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
 
-    <!--cv_csv-->
-    <div class="content">
-        <h4>Cv Table</h4>
-        <table>
-            <tr>
-                <th>standard deviation</th>
-                <th>average</th>
-                <th>nb pixels</th>
-                <th>cv</th>
-                <th>cv relative to min</th>
-            </tr>
-            {% for cv_record in cv_records %}
-                <tr>
-                    <td>{{cv_record.cv_table_sd[loop.index0]}}</td>
-                    <td>{{cv_record.cv_table_average[loop.index0]}}</td>
-                    <td>{{cv_record.cv_table_nb_pixels[loop.index0]}}</td>
-                    <td>{{cv_record.cv_table_cv_value[loop.index0]}}</td>
-                    <td>{{cv_record.cv_table_relative_to_min[loop.index0]}}</td>
-                </tr>
-            {% endfor %}
-        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <a class="btn" data-bs-toggle="collapse" href="#collapseTwo">
+                        Histogram: Number Of Pixels VS Gray Intensity
+                    </a>
+                </div>
+                <div id="collapseTwo" class="collapse show" data-bs-parent="#accordion">
+                    <div class="card-body">
+                        <div class="content">
+                            <img src="{{static_url_for('static', filename=hist_path)}}" alt="hist" id="report_img"> </img>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            
+            <div class="card">
+                <div class="card-header">
+                    <a class="btn" data-bs-toggle="collapse" href="#collapseFour">
+                        Images With Marked ROIs
+                    </a>
+                </div>
+                <div id="collapseFour" class="collapse show" data-bs-parent="#accordion">
+                    {% for i in range(roi_path_list|length) %}
+                        <div class="card-body">
+                            <div class="content">
+                                <h4 class="report_element_title"> Image Number {{i}}</h4>
+                                <img src="{{static_url_for('static', filename=roi_path_list[i])}}" alt="images with marked roi" id="report_img"> </img>
+                            </div>
+                        </div>
+                    {% endfor %}                    
+                </div>
+            </div>
+            
+        </div>
     </div>
 
 </div>
