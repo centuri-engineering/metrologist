@@ -48,21 +48,39 @@ def new_instruments(scope="group"):
     new_modality_form = NewModalityForm()
     new_microscope_form = NewMicroscopeForm()
 
-    if new_objective_form.validate_on_submit():
+    if new_objective_form.save.data:
         new_objective_form.create()
         flash("New objective created", "success")
+        new_microscope_form.update_choices()
         return render_template(
             "microscopes/new.html",
-            new_objective_form=NewObjectiveForm(),
+            new_objective_form=new_objective_form,
             new_modality_form=new_modality_form,
             new_microscope_form=new_microscope_form,
         )
 
+
     if new_modality_form.save.data:
         new_modality_form.create()
+        new_microscope_form.update_choices()
+        flash("New modality created", "success")
+        return render_template(
+            "microscopes/new.html",
+            new_objective_form=new_objective_form,
+            new_modality_form=new_modality_form,
+            new_microscope_form=new_microscope_form,
+        )
 
     if new_microscope_form.save.data:
+
         new_microscope_form.create()
+
+        return render_template(
+            "microscopes/new.html",
+            new_objective_form=new_objective_form,
+            new_modality_form=new_modality_form,
+            new_microscope_form=new_microscope_form,
+        )
 
     return render_template(
         "microscopes/new.html",

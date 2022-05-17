@@ -53,7 +53,7 @@ class NewModalityForm(FlaskForm):
     save = SubmitField("save", render_kw={"class": "btn btn-light"})
 
     def create(self):
-        new = Objective(
+        new = Modality(
             name=self.name.data,
         )
         return new

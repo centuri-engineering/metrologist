@@ -36,7 +36,7 @@
       </label>
     </div>
     <div class="col-6" style="margin-bottom: 1rem;">
-      {{ new_objective_form.magnification }} X
+      {{ new_objective_form.magnification }}
     </div>
   </div>
   <div class="form-row">
@@ -57,7 +57,7 @@
   {{ new_modality_form.csrf_token }}
 
   <!-- name,lensNA,magnification -->
-  <div class="form-row" title="Modality name (can have serial number)">
+  <div class="form-row" title="Modality name">
     <div class="col-6">
       <label class="control-label mb-0">
         <h4> modality name </h4>
@@ -80,25 +80,44 @@
       method="post"
       name="create_card"
       style="margin-left: 8rem; max-width: 76rem;">
-  {{ new_modality_form.csrf_token }}
+  {{ new_microscope_form.csrf_token }}
 
   <!--  -->
-  <div class="form-row" title="Modality name">
+  <div class="form-row" title="microscope name">
     <div class="col-6">
       <label class="control-label mb-0">
-        <h4> modality name </h4>
+        <h4> microscope name </h4>
       </label>
     </div>
     <div class="col-6" style="margin-bottom: 2rem;">
-      <h4> {{ new_modality_form.name(placeholder="epifluorescence") }} </h4>
+      <h4> {{ new_microscope_form.name(placeholder="confocal zeiss piece 3B") }} </h4>
     </div>
   </div>
-  <div class="form-row">
-    <div class="col-6" style="margin-bottom: 1rem;">
-      {{ new_modality_form.save }}
+  <div class="form-row" title="microscope's modality">
+    <div class="col-6">
+      <label class="control-label mb-0">
+        <h4> choose modality (add above if not proposed) </h4>
+      </label>
+    </div>
+    <div class="col-6" style="margin-bottom: 2rem;">
+      <h4> {{ new_microscope_form.modality() }} </h4>
     </div>
   </div>
-
+  <div class="form-row" title="microscope vendor">
+    <div class="col-6">
+      <label class="control-label mb-0">
+        <h4> choose modality (add above if not proposed) </h4>
+      </label>
+    </div>
+    <div class="col-6" style="margin-bottom: 2rem;">
+      <h4> {{ new_microscope_form.vendor() }} </h4>
+    </div>
+    <div class="form-row">
+      <div class="col-6" style="margin-bottom: 1rem;">
+        {{ new_microscope_form.save }}
+      </div>
+    </div>
+  </div>
 </form>
 
 
