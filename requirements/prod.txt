@@ -50,7 +50,7 @@ Flask-Session==0.4.0
 # Python
 numpy==1.22.3
 pandas==1.4.2
-matplotlib==3.5.1
+matplotlib==3.5.2
 Pillow==9.1.1
 scikit-image==0.19.2
 metroloj==0.1.5
