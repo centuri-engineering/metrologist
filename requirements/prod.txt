@@ -49,7 +49,7 @@ requests
 Flask-Session==0.4.0
 
 # Python
-numpy==1.23.2
+numpy==1.23.3
 pandas==1.4.4
 matplotlib==3.5.3
 Pillow==9.2.0
